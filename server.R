@@ -1,25 +1,34 @@
 # Define server logic required to draw a histogram
+#' Title
+#'
+#' @param input 
+#' @param output 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 server <- function(input, output) {
   
   output$str <- renderPrint({
-   # if(!is.null(NT$data)){
+   if(!is.null(NT$data)){
       pander::pander(paste(dim(CELLlineData$data)[1],input$selectCancerType,'cell lines and ',
                            dim(TUMOURS$data)[1],'patients considered in this session'))
-  #  }else{
-  #    pander::pander('Build CELLector Search Space to START')
-   # }
+    }else{
+      pander::pander('Build CELLector Search Space to START')
+   }
   })
   
   TUMOURS <- reactiveValues(data = NULL)
   FEATURES <- reactiveValues(data = NULL)
-  
+  CTYPE <- reactiveValues(data = NULL)
   NT <- reactiveValues(data = NULL)
+  
   RULES <- reactiveValues(data = NULL)
   SELECTEDNODE <- reactiveValues(data = NULL)
   SIGNATURES <- reactiveValues(data = NULL)
   encodedSIGNATURES <- reactiveValues(data = NULL)
   CELLlineData <- reactiveValues(data = NULL)
-  CTYPE <- reactiveValues(data = NULL)
   STATUS <- reactiveValues(data = NULL)
   
   
@@ -28,41 +37,40 @@ server <- function(input, output) {
     SELECTEDNODE$data <- NULL
     TUMOURS$data <- CELLector.PrimTum.BEMs[[input$selectCancerType]]
     FEATURES$data <- colnames(TUMOURS$data)
-    feature<-FEATURES$data
-    # if(length(input$subSet)>0 & input$subSet!=''){
-    #   TUMOURS$data <- TUMOURS$data[which(TUMOURS$data[,input$subSet]),]
-    #   rownames(TUMOURS$data) <- as.character(1:nrow(TUMOURS$data))
-    # }
+    if(length(input$subSet)>0 & input$subSet!=''){
+       TUMOURS$data <- TUMOURS$data[which(TUMOURS$data[,input$subSet]),]
+       rownames(TUMOURS$data) <- as.character(1:nrow(TUMOURS$data))
+    }
+    #.............. 
+    progress <- shiny::Progress$new(style='old')
+    progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0)
+    #.............. 
+    ctype <- input$selectCancerType
+    CTYPE$data <- ctype
+
+    minLen <- input$minSetSize
+    minGlobSupp <- input$minGlobalSupport/100
+    pathway <- input$pathFocus
+    #..............
+    mutonly <- FALSE
+    cnaonly <- FALSE
+
+    if(input$whatToInclude=='Mutations in high confidence cancer genes'){
+      mutonly <- TRUE
+    }
+    if(input$whatToInclude=='Recurrently CN altered chromosomal segments'){
+      cnaonly <- TRUE
+    }
+    #..............
+    if (input$whereToNeglect=='While building search space' | input$whereToNeglect=='Always'){
+      toRemove <- input$toExclude
+    }else{ toRemove <- NULL
+    }
+    #..............
+    progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0.5)
     # #.............. 
-    # progress <- shiny::Progress$new(style='old')
-    # progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0)
-    # #.............. 
-    # ctype <- input$selectCancerType
-    # CTYPE$data <- ctype
-    # 
-    # minLen <- input$minSetSize
-    # minGlobSupp <- input$minGlobalSupport/100
-    # pathway <- input$pathFocus
-    # #.............. 
-    # mutonly <- FALSE
-    # cnaonly <- FALSE
-    # 
-    # if(input$whatToInclude=='Mutations in high confidence cancer genes'){
-    #   mutonly <- TRUE
-    # }
-    # if(input$whatToInclude=='Recurrently CN altered chromosomal segments'){
-    #   cnaonly <- TRUE
-    # }
-    # #.............. 
-    # if (input$whereToNeglect=='While building search space' | input$whereToNeglect=='Always'){
-    #   toRemove <- input$toExclude    
-    # }else{ toRemove <- NULL
-    # }
-    # #.............. 
-    # progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0.5)
-    # #.............. 
-    # 
-    # NT$data <- CELLector_search_space(tumours = TUMOURS$data,
+     
+    #NT$data <- CELLector.Build_Search_Space(tumours = TUMOURS$data,
     #                                   cancerType = input$selectCancerType,
     #                                   minlen = minLen,
     #                                   minGlobSupp = minGlobSupp,
@@ -70,7 +78,7 @@ server <- function(input, output) {
     #                                   mutOnly = mutonly,
     #                                   cnaOnly = cnaonly,
     #                                   FeatureToExclude = toRemove)
-    # #..............
+    #..............
     # if(nrow(NT$data$navTable)>0){
     #   
     #   S <- createAllSignatures(NavTab = NT$data$navTable)

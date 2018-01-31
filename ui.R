@@ -1,4 +1,4 @@
-# Define UI for application that draws a histogram
+
 ui <- fluidPage(
   navbarPage(theme = shinytheme("yeti"), # other options: "cosmo","yeti","lumen"
              title = "CELLector",
@@ -9,11 +9,9 @@ ui <- fluidPage(
                         # - - - - - - - - - - - - - - - - - - - - -
                         column(3,
                                wellPanel(
-                                 h6("Genomic Features of Primary-Tumours"),
-                                 
                                  img(src="cellcultures.jpg", height = 100, width = 240, align = "middle"),
                                  br(), br(),
-                                 selectInput("selectCancerType", label = h6("Cancer Type:"),
+                                 selectInput("selectCancerType", label = h5("Cancer Type:"),
                                              choices = sort(as.character(TCGALabels)), selected = 'COREAD'),
                                  actionButton("action", label = tags$strong(em("Build Search Space"))), #style="color: #fff"
                                  br(), br(),
@@ -27,7 +25,7 @@ ui <- fluidPage(
                                fluidRow(column(12, 
                                                 wellPanel(
                                                   
-                                                  # h6("Representative Cell Line Selection"),
+                                                  h5("Representative Cell Line Selection"),
                                                   
                                                   numericInput("N.CellLines", h5(strong(em("N. of Cell Lines to Select:"))), 10, min = 1, max = 100),
                                                   downloadButton("CELLect", label = "CELLect Cell Lines"),
@@ -37,11 +35,6 @@ ui <- fluidPage(
                                                 )) )
                         ),
                         
-                        
-                        p(h5("Work in Progress")),
-                        
-                        br(),
-                      
                         # - - - - - - - - - - - - - - - - - - - - -
                         column(9,
                                 wellPanel(
@@ -77,75 +70,77 @@ ui <- fluidPage(
                                   # - - - - - - - - - - - - - - - - - - - - -
                                   fluidRow(
                                     column(6,
+                                           
                                            selectizeInput(
                                              'subSet',
-                                             label = "1. Define subcohort based on individual CFE (max 1):",
+                                             label = "1. Define subcohort based presence/absence of an individual CFE:",
                                              choices = c('', features),
                                              selected = '',
                                              options = list(create = TRUE, maxItems = 1)
-                                           )
+                                           ),
+
+                                           checkboxInput("checkboxNegation", label = "~ (absence)", value = FALSE),
+                                           
+                                          selectizeInput(
+                                            'pathFocus',
+                                            label = "2. Focus on CFEs in cancer pathways (max 3):",
+                                            choices = c('',pathways),
+                                            #selected='RAS-RAF-MEK-ERK / JNK signaling',
+                                            selected = '',
+                                            options = list(create = TRUE, maxItems = 3)
+                                          ),
+
+                                           radioButtons('whatToInclude2', '4. Consider only cell lines that are:',
+                                                        choices = c('Microsatellite stable',
+                                                                    'Microsatellite instable',
+                                                                    'Everything'),
+                                                        selected = 'Everything',
+                                                        inline = FALSE)
+                                    ),
+                                    column(6,
+                                           selectizeInput(
+                                             'toExclude',
+                                             label = "3A. Negligible CFEs (max 3):",
+                                             choices = c('',features),
+                                             selected = '',
+                                             options = list(create = TRUE, maxItems = 3)
+                                           ),
                         #                   
-                        #                   selectizeInput(
-                        #                     'pathFocus',
-                        #                     label = "2. Focus on CFEs in cancer pathways (max 3):",
-                        #                     choices = c('',pathways),
-                        #                     #selected='RAS-RAF-MEK-ERK / JNK signaling',
-                        #                     selected = '',
-                        #                     options = list(create = TRUE, maxItems = 3)
-                        #                   ), 
-                        #                   
-                        #                   radioButtons('whatToInclude2', '4. Consider only cell lines that are:',
-                        #                                choices = c('Microsatellite stable',
-                        #                                            'Microsatellite instable',
-                        #                                            'Everything'),
-                        #                                selected = 'Everything',
-                        #                                inline = FALSE)
+                        #                   Working
+                                           radioButtons('whereToNeglect', '3B. Neglect CFEs defined in 3A:',
+                                                        choices = c('While building search space','Forcing absence from final selection','Both cases'),
+                                                        selected = 'While building search space',
+                                                        inline = FALSE)
                                     )
-                        #            column(6,
-                        #                   # Working
-                        #                   selectizeInput(
-                        #                     'toExclude',
-                        #                     label = "3A. Negligible CFEs (max 3):",
-                        #                     choices = c('',features),
-                        #                     selected = '',
-                        #                     options = list(create = TRUE, maxItems = 3)
-                        #                   ), 
-                        #                   
-                        #                   # Working
-                        #                   radioButtons('whereToNeglect', '3B. Neglect CFEs defined in 3A:',
-                        #                                choices = c('While building search space','While selecting cell lines','Always'),
-                        #                                selected = 'While building search space',
-                        #                                inline = FALSE)
-                        #            )
                                   )
                                 )
-                        )
+                        ),
                         # - - - - - - - - - - - - - - - - - - - - -
-                         # column(3, 
-                         #         wellPanel(
-                         #           # h3("Recurrent Copy Number Alterations"),
-                         #           
-                         #           # selectInput("cnaID", label = h4("Look up:"), 
-                         #           #              choices = c('', cnaidlist), 
-                         #           #             selected = ''),
-                         #           
-                         #           # p("XxXXXXXxxXxxidahfklshgishgishglskhgsytwhflalt"),
-                         #           # 
-                         #           # hr(),
-                         #           # fluidRow(column(12, verbatimTextOutput("value")))
-                         #           
-                         #         ))
+                         column(3, 
+                                  wellPanel(
+                                    # h3("Recurrent Copy Number Alterations"),
+                                    
+                                    # selectInput("cnaID", label = h4("Look up:"), 
+                                    #              choices = c('', cnaidlist), 
+                                    #             selected = ''),
+                                    
+                                    # p("XxXXXXXxxXxxidahfklshgishgishglskhgsytwhflalt"),
+                                    # 
+                                    # hr(),
+                                    # fluidRow(column(12, verbatimTextOutput("value")))
+                                    
+                                  ))
                       ),
                       # # - - - - - - - - - - - - - - - - - - - - -
-                      verbatimTextOutput("str")
-                      # collapsibleTreeOutput("plot"),
-                      # fluidRow(
+                      verbatimTextOutput("str"),
+                      collapsibleTreeOutput("plot")
+                      #fluidRow(
                       #   column(6,
                       #          tableOutput('NodeDetails'),
                       #          tableOutput('CellLineDetails')),
                       #   column(3,plotOutput('GlobalPieChart')),
                       #   column(3,plotOutput('ComplementPieChart'))
-                      # )
+                      #)
              )
              
              # - - - - - - - - - - - - - - - - - - - - -
