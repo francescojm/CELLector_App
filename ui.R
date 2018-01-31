@@ -5,6 +5,7 @@ ui <- fluidPage(
              tabPanel(title = "Select",
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       hr(),
+                      h3('COMING SOON'),
                       fluidRow(
                         # - - - - - - - - - - - - - - - - - - - - -
                         column(3,
