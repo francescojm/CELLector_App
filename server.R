@@ -66,19 +66,23 @@ server <- function(input, output) {
       toRemove <- input$toExclude
     }else{ toRemove <- NULL
     }
+
     #..............
     progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0.5)
     # #.............. 
-     
-    #NT$data <- CELLector.Build_Search_Space(tumours = TUMOURS$data,
-    #                                   cancerType = input$selectCancerType,
-    #                                   minlen = minLen,
-    #                                   minGlobSupp = minGlobSupp,
-    #                                   pathwayFocused = pathway,
-    #                                   mutOnly = mutonly,
-    #                                   cnaOnly = cnaonly,
-    #                                   FeatureToExclude = toRemove)
-    #..............
+    
+    #### other parameters to be added.
+    #NT$data <- CELLector.Build_Search_Space(
+    #                                    ctumours = TUMOURS$data,
+    #                                    cancerType = input$selectCancerType,
+    #                                    minlen = minLen,
+    #                                    minGlobSupp = minGlobSupp/100,
+    #                                    pathwayFocused = pathway,
+    #                                    mutOnly = mutonly,
+    #                                    cnaOnly = cnaonly,
+    #                                    subCohortDefinition = 
+    #                                    FeatureToExclude = toRemove)
+    # #..............
     # if(nrow(NT$data$navTable)>0){
     #   
     #   S <- createAllSignatures(NavTab = NT$data$navTable)

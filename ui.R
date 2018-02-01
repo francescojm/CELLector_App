@@ -3,6 +3,25 @@ ui <- fluidPage(
   navbarPage(theme = shinytheme("yeti"), # other options: "cosmo","yeti","lumen"
              title = "CELLector",
              tabPanel(title = "Select",
+                      
+                      fluidRow(
+                        column(4,
+                               a(img(src="cti_ot_primary_logo_blk_hr.jpg", height = 57, width = 156, align = "middle"),
+                                 href='https://www.opentargets.org/',target="_blank")
+                               ),
+                        column(4,
+                               a(img(src="Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Monotone_Black.png",
+                                     height = 58, width = 169, align = "middle"),
+                                  href='http://www.sanger.ac.uk/',target="_blank")
+                               ),
+                        column(4,
+                               a(img(src="EMBL_EBI_Logo_black.jpg",
+                                   height = 46, width = 155, align = "middle"),
+                                 href='https://www.ebi.ac.uk/',target="_blank")
+                               )
+                      ),
+                      
+                      br(),
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       hr(),
                       h3('COMING SOON'),

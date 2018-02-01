@@ -14,12 +14,12 @@ library(grImport2)
 ## Loading Primary Tumour Binary Event Matrices
 data(CELLector.PrimTum.BEMs)
 data(CELLector.CFEs)
-data(CELLector.PathwayList)
+data(CELLector.Pathway_CFEs)
 
 ## Deriving available TCGA labels
 TCGALabels<-names(CELLector.PrimTum.BEMs)
 
 tumours<-CELLector.PrimTum.BEMs$COREAD
 features<-CELLector.CFEs
-pathways<-CELLector.PathwayList
+pathways<-names(CELLector.Pathway_CFEs)
 
