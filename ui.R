@@ -90,7 +90,6 @@ ui <- fluidPage(
                                   # - - - - - - - - - - - - - - - - - - - - -
                                   fluidRow(
                                     column(6,
-                                           
                                            selectizeInput(
                                              'subSet',
                                              label = "1. Define subcohort based presence/absence of an individual CFE:",

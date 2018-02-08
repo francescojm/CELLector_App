@@ -75,16 +75,21 @@ server <- function(input, output) {
     # #.............. 
     
     #### other parameters to be added.
-    #NT$data <- CELLector.Build_Search_Space(
-    #                                    ctumours = TUMOURS$data,
-    #                                    cancerType = input$selectCancerType,
-    #                                    minlen = minLen,
-    #                                    minGlobSupp = minGlobSupp/100,
-    #                                    pathwayFocused = pathway,
-    #                                    mutOnly = mutonly,
-    #                                    cnaOnly = cnaonly,
-    #                                    subCohortDefinition = 
-    #                                    FeatureToExclude = toRemove)
+    NT$data <- CELLector.Build_Search_Space(
+                                        ctumours = t(TUMOURS$data),
+                                        cancerType = input$selectCancerType,
+                                        minlen = input$minSetSize,
+                                        mutOnly = (input$whatToInclude=='Mutations in high confidence cancer genes'),
+                                        cnaOnly = (input$whatToInclude=='Mutations in high confidence cancer genes'),
+                                        minGlobSupp = input$minGlobalSupport/100,
+                                        FeatureToExclude = input$toExclude,
+                                        pathway_CFEs = CELLector.Pathway_CFEs,
+                                        pathwayFocused = input$pathFocus,
+                                        subCohortDefinition = input$subSet,
+                                        NegativeDefinition = input$checkboxNegation,
+                                        cnaIdMap = CELLector.CFEs.CNAid_mapping,
+                                        cnaIdDecode = CELLector.CFEs.CNAid_decode
+                                        )
     # #..............
     # if(nrow(NT$data$navTable)>0){
     #   
