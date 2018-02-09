@@ -74,7 +74,7 @@ ui <- fluidPage(
                                                                   strong("Alteration set size:"), 1, 5, value = 1,step = 1,round = TRUE)),
                                              column(6,
                                                     sliderInput("minGlobalSupport",
-                                                                strong("Global support (%):"), 1, 50, value = 1,step = 1,round = TRUE)
+                                                                strong("Global support (%):"), 1, 50, value = 5,step = 1,round = TRUE)
                                              )
                                            )
                                     )
@@ -104,8 +104,7 @@ ui <- fluidPage(
                                             'pathFocus',
                                             label = "2. Focus on CFEs in cancer pathways (max 3):",
                                             choices = c('',pathways),
-                                            #selected='RAS-RAF-MEK-ERK / JNK signaling',
-                                            selected = '',
+                                            selected="RAS-RAF-MEK-ERK / JNK signaling",
                                             options = list(create = TRUE, maxItems = 3)
                                           ),
 
@@ -152,15 +151,24 @@ ui <- fluidPage(
                       ),
                       # # - - - - - - - - - - - - - - - - - - - - -
                       verbatimTextOutput("str"),
-                      collapsibleTreeOutput("plot")
-                      #fluidRow(
-                      #   column(6,
-                      #          tableOutput('NodeDetails'),
-                      #          tableOutput('CellLineDetails')),
-                      #   column(3,plotOutput('GlobalPieChart')),
-                      #   column(3,plotOutput('ComplementPieChart'))
-                      #)
+                      fluidRow(
+                        column(9,
+                               wellPanel(
+                               collapsibleTreeOutput("plot"))
+                               ),
+                        column(3,
+                               sunburstOutput("sunburst"))
+                      ),
+                      
+                      fluidRow(
+                         column(6,
+                                tableOutput('NodeDetails'),
+                                tableOutput('CellLineDetails')),
+                         column(3,plotOutput('GlobalPieChart')),
+                         column(3,plotOutput('ComplementPieChart'))
+                      )
              )
+             
              
              # - - - - - - - - - - - - - - - - - - - - -
              # tabPanel(title = "Explore",
