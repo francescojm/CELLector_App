@@ -22,6 +22,45 @@ data(CELLector.PrimTum.BEMs)
 ## Loading Cell Lines's Binary Event Matrices
 data(CELLector.CellLine.BEMs)
 
+data(CELLector.CFEs.CNAid_decode)
+
+CNAid_decode<-data.frame(Id=as.character(CELLector.CFEs.CNAid_decode$CNA_Identifier),
+                   CancerType=as.character(CELLector.CFEs.CNAid_decode$CancerType),
+                   Gain_Loss=as.character(CELLector.CFEs.CNAid_decode$Recurrent),
+                   Locus=as.character(CELLector.CFEs.CNAid_decode$locus),
+                   n.Genes=as.numeric(CELLector.CFEs.CNAid_decode$nGenes),
+                   Genes=as.character(CELLector.CFEs.CNAid_decode$ContainedGenes),stringsAsFactors = FALSE)
+CNAid_decode$Gain_Loss[CNAid_decode$Gain_Loss=='Amplification']<-'Gain'
+CNAid_decode$Gain_Loss[CNAid_decode$Gain_Loss=='Deletion']<-'Loss'
+
+
+for (i in 1:nrow(CNAid_decode)){
+   
+   tmp<-CNAid_decode$Genes[i]
+   
+   tmp<-unlist(str_split(tmp,','))
+   if(length(tmp)>5){
+     
+     ntmp<-intersect(tmp,c(CELLector.HCCancerDrivers,'ERBB2','MYC','PTEN'))
+     ntmp<-sort(ntmp)[1:5]
+     tmp<-paste(c(sort(c(ntmp,tmp[1:(5-length(ntmp))])),'...'),collapse=', ')
+   }else{
+     tmp<-paste(tmp,collapse=', ')
+   }
+   
+   CNAid_decode$Genes[i]<-tmp
+   
+ }
+
+
+
+#colnames(CELLector.CFEs.CNAid_decode)[15]<-'Id.'
+#colnames(CELLector.CFEs.CNAid_decode)[3]<-'(G)ain/(L)oss'
+#CELLector.CFEs.CNAid_decode$`(G)ain/(L)oss`[CELLector.CFEs.CNAid_decode$`(G)ain/(L)oss`=='Amplification']<-'G'
+#CELLector.CFEs.CNAid_decode$`(G)ain/(L)oss`[CELLector.CFEs.CNAid_decode$`(G)ain/(L)oss`=='Deletion']<-'L'
+
+
+
 data(CELLector.CFEs)
 data(CELLector.Pathway_CFEs)
 data(CELLector.MSIstatus)

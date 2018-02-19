@@ -13,6 +13,20 @@
 #' @examples
 server <- function(input, output) {
   
+  output$cnaDecodeTable <- renderDataTable(CNAid_decode[CNAid_decode$CancerType==input$selectCancerType,],
+                                     options = list(
+                                       pageLength = 10,autoWidth = FALSE)
+                                     )
+     
+  
+  
+  
+# output$cnaDecodeTable <- renderDataTable(CELLector.CFEs.CNAid_decode[CELLector.CFEs.CNAid_decode[,2]==input$selectCancerType,c(15,2,3,12,14)],
+#                                   options = list(
+#                                     pageLength = 10,autoWidth = FALSE)
+#                                   )
+#   
+  
   output$str <- renderPrint({
    if(!is.null(NT$data)){
       
@@ -45,6 +59,113 @@ server <- function(input, output) {
   SunBurstSequences <- reactiveValues(data = NULL)
   
   
+  output$DownSearchSpace <- downloadHandler(
+    filename = function(){
+      paste("CELLector_SearchSpace_", input$selectCancerType, "_", Sys.Date(), ".tsv", sep = "")
+    },
+    content = function(file) {
+      if(length(NT$data)>0){
+        toSave<-cbind(NT$data$navTable[,c(1,3:9)],SIGNATURES$data)
+        
+        colnames(toSave)<-c('Node Index',
+                            'Genomic Alterations',
+                            'Node Type (Left = Refinement, Right = Complement)',
+                            'Parent Node',
+                            'N. Represented Patients (Globally)',
+                            'N. Patients in the considered sub-population',
+                            'Relative Support %',
+                            'Global Support %',
+                            'Genomic Signature'
+        )
+        
+        nsig<-length(encodedSIGNATURES$data)
+        
+        if(input$whatToInclude2=='Microsatellite stable'){
+          CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
+        }else{
+          if(input$whatToInclude2=='Microsatellite instable'){
+            CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus!="MSI-H")),COSMICids$data)]
+          }else{
+            CTE<-NULL
+          } 
+        }
+        
+        MODELS<-vector()
+        suppressWarnings(
+          for (cc in 1:nsig){
+            
+            solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = CTE)    
+            
+            MODELS[cc]<-paste(sort(solved$PS),collapse=', ')
+          }
+        )
+        toSave<-cbind(toSave,MODELS)
+        colnames(toSave)[ncol(toSave)]<-'Representative Cell Line'
+        
+        visit<-CELLector.selectionVisit(NT$data$navTable)
+        
+        TOS<-toSave[visit,]
+        
+        colnames(TOS)[1]<-'Tumour SubType Index'
+        colnames(TOS)[2]<-'Node Genomic Alteration'
+        
+        TOS<-TOS[,c(1,9,2,3,4,5,6,7,8,10)]
+        write.table(TOS, file, sep='\t',row.names = FALSE,quote=FALSE)  
+        
+      }
+      
+    }
+  )
+  
+  output$CELLect <- downloadHandler(
+    filename = function(){
+      paste("CELLected_CellLines_", input$selectCancerType, "_", Sys.Date(), ".tsv", sep = "")
+    },
+    content = function(file) {
+      if(length(NT$data)>0){
+        toSave<-cbind(NT$data$navTable[,c(1,3:9)],SIGNATURES$data)
+        
+        nsig<-length(encodedSIGNATURES$data)
+        
+        MODELS<-vector()
+        
+        if(input$whatToInclude2=='Microsatellite stable'){
+          CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
+        }else{
+          if(input$whatToInclude2=='Microsatellite instable'){
+            CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus!="MSI-H")),COSMICids$data)]
+          }else{
+            CTE<-NULL
+          } 
+        }
+        
+        suppressWarnings(
+          for (cc in 1:nsig){
+            solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = CTE)    
+            MODELS[cc]<-paste(sort(solved$PS),collapse=', ')
+          }
+        )
+        
+        toSave<-cbind(toSave,MODELS)
+        colnames(toSave)[ncol(toSave)]<-'Representative Cell Line'
+        
+        visit<-CELLector.selectionVisit(NT$data$navTable)
+        
+        ncellLines<-input$N.CellLines
+        sortedModels<-MODELS[visit]
+        
+        NODEidx<-visit[which(sortedModels!='')]
+        sortedModels<-sortedModels[which(sortedModels!='')]
+        modelMat<-CELLector.buildModelMatrix(sortedModels)
+        
+        res<-CELLector.makeSelection(modelMat,ncellLines)
+        res$modelAccounted<-NODEidx[res$modelAccounted]
+        
+        colnames(res)<-c('Tumour SubType Index','Representative Cell Line')
+        write.table(res, file,sep='\t', row.names = FALSE, quote=FALSE)    
+      }
+    }
+  )
   
   observeEvent(input$action, {
     CELLlineData$data<-CELLector.CellLine.BEMs[[input$selectCancerType]]
@@ -116,36 +237,11 @@ server <- function(input, output) {
       CLD <- as.matrix(CLD[,3:ncol(CLD)])
       rownames(CLD) <- rn
 
-      #..............
-      # if (input$whereToNeglect=='While selecting cell lines' | input$whereToNeglect=='Always'){
-      #   toRemove <- input$toExclude
-      # 
-      #   if(length(toRemove)>1){
-      #     CLD <- CLD[which(rowSums(CLD[,toRemove])==0),]
-      #   }else{
-      #     if (length(toRemove)>0){
-      #       CLD <- CLD[which(CLD[,toRemove]==0),]
-      #     }
-      #   }
-      # }
-      #..............
-   #   if (input$whatToInclude2!='Everything'){
-
-#        if (input$whatToInclude2=='Microsatellite stable'){
-#          CLD <- CLD[which(MSI_STATUS[as.character(CIDS)]==0),]
-#        } else{
-#          CLD <- CLD[which(MSI_STATUS[as.character(CIDS)]==1),]
-#        }
-#      }
-      #..............
-
     }
-    #..............
 
     progress$set(message = "Done!", value = 1)
     progress$close()
-    #..............
-    
+
     #cnaLookUp$data <- CELLector.cna_look_up(input$cnaID , input$selectCancerType)
     
     #CLG_feature$data <- CELLector.get_cell_line_genomic_features(input$CLname, input$selectCancerType)
@@ -338,7 +434,6 @@ server <- function(input, output) {
       
       tmpCol <- Get(Traverse(NT$data$TreeRoot,traversal = 'level'),'Colors')
       
-     
       non <- names(tmpCol)
       non <- str_split(non,' ')
       non <- unlist(lapply(non,function(x){x[[1]][1]}))
@@ -347,14 +442,22 @@ server <- function(input, output) {
       
       CCOL<-tmpCol[id]
       
+      if(is.na(CCOL[1])){
+        CCOL<-'darkgray'
+      }
+      
       CCCOL<-rep('lightgray',length(patients))
       CCCOL[which(patients>0)]<-CCOL
       
       
       
-      beeswarm(PATIENTcoords$data[names(patients)],method = 'hex',xaxt='n',yaxt='n',pwcol = CCCOL,pch=16,cex=1.5,
+      plotCoords<-beeswarm(PATIENTcoords$data[names(patients)],method = 'hex',xaxt='n',yaxt='n',pwcol = CCCOL,pch=16,cex=1.5,
                main=paste("SubType ", SELECTEDNODE$data,' (', format(100*currentGlobalSupport, digits=3),'% of ', nn, ' patients)',
                           sep=''))
+      
+      plot(plotCoords$x,plotCoords$y,xaxt='n',yaxt='n',col = CCCOL,pch=16,cex=1.5,frame.plot = FALSE,xlab='',ylab='',
+           main=paste("SubType ", SELECTEDNODE$data,' (', format(100*currentGlobalSupport, digits=3),'% of ', nn, ' patients)',
+                                                                                             sep=''))
       
     } 
   })
@@ -362,10 +465,19 @@ server <- function(input, output) {
   output$ComplementPieChart<-renderPlot({
      
       if(length(NT$data$TreeRoot)>0 & length(SELECTEDNODE$data)>0){
+        
         res<-CELLector_App.complementarPieChart(NT$data$TreeRoot,NT$data$navTable,SELECTEDNODE$data)
+        
+        
         COLORS<-res$COLORS
         res<-res$supports
         
+        
+        if(is.na(COLORS[1])){
+          COLORS<-'darkgray'
+        }
+        
+        if(is.element(100,res)){res<-100}
         pie3D(res,explode = 0,labels =names(res),labelcex = 0.8,
               col=c(COLORS,NA),
               radius = 1,las=2,main = paste('Selected subpopulation \nwith respect to the entire cohort (total ',

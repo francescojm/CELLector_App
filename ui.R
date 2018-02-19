@@ -83,7 +83,7 @@ ui <- fluidPage(
                                 )
                         ),
                         # - - - - - - - - - - - - - - - - - - - - -
-                        column(6,
+                        column(3,
                                 wellPanel(
                                   p(h5("Supervised Search Space Construction")),
                                   p(h6("(re-build search space to make changes effective)")),
@@ -99,7 +99,7 @@ ui <- fluidPage(
                                              options = list(create = TRUE, maxItems = 1)
                                            ),
 
-                                           checkboxInput("checkboxNegation", label = "~ (absence)", value = FALSE),
+                                           checkboxInput("checkboxNegation", label = "wild-type", value = FALSE),
                                            
                                           selectizeInput(
                                             'pathFocus',
@@ -115,29 +115,16 @@ ui <- fluidPage(
                                                                     'Everything'),
                                                         selected = 'Everything',
                                                         inline = FALSE)
+                                          )
                                     )
-                        #             ,
-                        #             column(6,
-                        #                    selectizeInput(
-                        #                      'toExclude',
-                        #                      label = "3A. Negligible CFEs (max 3):",
-                        #                      choices = c('',features),
-                        #                      selected = '',
-                        #                      options = list(create = TRUE, maxItems = 3)
-                        #                    ),
-                        # #                   
-                        # #                   Working
-                        #                    radioButtons('whereToNeglect', '3B. Neglect CFEs defined in 3A:',
-                        #                                 choices = c('While building search space','Forcing status in final selection','Both cases'),
-                        #                                 selected = 'While building search space',
-                        #                                 inline = FALSE)
-                        #             )
-                                  )
                                 )
                         ),
+                        
                         # - - - - - - - - - - - - - - - - - - - - -
-                         column(3, 
+                         column(6, 
                                   wellPanel(
+                                    p(h5("Id decoding for recurrently CN altered chromosomal segments")),
+                                    dataTableOutput('cnaDecodeTable')
                                     # h3("Recurrent Copy Number Alterations"),
                                     
                                     # selectInput("cnaID", label = h4("Look up:"), 
