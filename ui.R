@@ -59,6 +59,7 @@ ui <- fluidPage(
                         column(9,
                                 wellPanel(
                                   h5("Criteria for Primary Tumours' Sub-typing"),
+                                  p(h6("(re-build search space to make changes effective)")),
                                   fluidRow(
                                     column(5,
                                            radioButtons('whatToInclude', strong('Cancer Functional Events (CFEs) to consider:'),
@@ -85,7 +86,7 @@ ui <- fluidPage(
                         column(6,
                                 wellPanel(
                                   p(h5("Supervised Search Space Construction")),
-                                  p(h6("(once desired criteria are selected, re-build searching space to make changes effective)")),
+                                  p(h6("(re-build search space to make changes effective)")),
                                   br(),
                                   # - - - - - - - - - - - - - - - - - - - - -
                                   fluidRow(
@@ -114,22 +115,23 @@ ui <- fluidPage(
                                                                     'Everything'),
                                                         selected = 'Everything',
                                                         inline = FALSE)
-                                    ),
-                                    column(6,
-                                           selectizeInput(
-                                             'toExclude',
-                                             label = "3A. Negligible CFEs (max 3):",
-                                             choices = c('',features),
-                                             selected = '',
-                                             options = list(create = TRUE, maxItems = 3)
-                                           ),
-                        #                   
-                        #                   Working
-                                           radioButtons('whereToNeglect', '3B. Neglect CFEs defined in 3A:',
-                                                        choices = c('While building search space','Forcing absence from final selection','Both cases'),
-                                                        selected = 'While building search space',
-                                                        inline = FALSE)
                                     )
+                        #             ,
+                        #             column(6,
+                        #                    selectizeInput(
+                        #                      'toExclude',
+                        #                      label = "3A. Negligible CFEs (max 3):",
+                        #                      choices = c('',features),
+                        #                      selected = '',
+                        #                      options = list(create = TRUE, maxItems = 3)
+                        #                    ),
+                        # #                   
+                        # #                   Working
+                        #                    radioButtons('whereToNeglect', '3B. Neglect CFEs defined in 3A:',
+                        #                                 choices = c('While building search space','Forcing status in final selection','Both cases'),
+                        #                                 selected = 'While building search space',
+                        #                                 inline = FALSE)
+                        #             )
                                   )
                                 )
                         ),

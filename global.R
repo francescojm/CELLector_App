@@ -1,6 +1,6 @@
 library(shiny)
 library(shinythemes)
-#library(stringr)
+library(beeswarm)
 library(plotrix)
 
 #polar.plot(), pie3D()
@@ -24,11 +24,14 @@ data(CELLector.CellLine.BEMs)
 
 data(CELLector.CFEs)
 data(CELLector.Pathway_CFEs)
+data(CELLector.MSIstatus)
 
 ## Deriving available TCGA labels
 TCGALabels<-names(CELLector.PrimTum.BEMs)
 
 tumours<-CELLector.PrimTum.BEMs$COREAD
+colnames(tumours)<-paste(colnames(tumours),'_',1:ncol(tumours),sep='')
+
 features<-CELLector.CFEs
 pathways<-names(CELLector.Pathway_CFEs)
 
