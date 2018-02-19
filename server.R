@@ -15,10 +15,11 @@ server <- function(input, output) {
   
   output$str <- renderPrint({
    if(!is.null(NT$data)){
-      CELLlineData$data<-CELLector.CellLine.BEMs[[input$selectCancerType]]
-      TUMOURS$data<-CELLector.PrimTum.BEMs[[input$selectCancerType]]
+      
+      #TUMOURS$data<-CELLector.PrimTum.BEMs[[input$selectCancerType]]
+      #colnames(TUMOURS$data)<-paste(colnames(TUMOURS$data),'_',1:ncol(TUMOURS$data),sep='')
       pander::pander(paste(dim(CELLlineData$data)[1],input$selectCancerType,'cell lines and ',
-                           dim(TUMOURS$data)[1],'patients considered in this session'))
+                           ncol(TUMOURS$data),'patients considered in this session'))
       
     }else{
       pander::pander('Build CELLector Search Space to START')
@@ -30,21 +31,36 @@ server <- function(input, output) {
   CTYPE <- reactiveValues(data = NULL)
   NT <- reactiveValues(data = NULL)
   
+  PATIENTcoords<-reactiveValues(data = NULL)
+  
   RULES <- reactiveValues(data = NULL)
   SELECTEDNODE <- reactiveValues(data = NULL)
   SIGNATURES <- reactiveValues(data = NULL)
   encodedSIGNATURES <- reactiveValues(data = NULL)
   CELLlineData <- reactiveValues(data = NULL)
+  COSMICids<-reactiveValues(data = NULL)
+  
+  
   STATUS <- reactiveValues(data = NULL)
   SunBurstSequences <- reactiveValues(data = NULL)
   
   
   
   observeEvent(input$action, {
-    
+    CELLlineData$data<-CELLector.CellLine.BEMs[[input$selectCancerType]]
+    r<-CELLlineData$data[,2]
+    COSMICids$data<-CELLlineData$data[,1]
+    CELLlineData$data<-CELLlineData$data[,3:ncol(CELLlineData$data)]
+    rownames(CELLlineData$data)<-r
     SELECTEDNODE$data <- NULL
     TUMOURS$data <- CELLector.PrimTum.BEMs[[input$selectCancerType]]
-    FEATURES$data <- colnames(TUMOURS$data)
+    colnames(TUMOURS$data)<-paste(colnames(TUMOURS$data),'_',1:ncol(TUMOURS$data),sep='')
+    FEATURES$data <- rownames(TUMOURS$data)
+    
+    PATIENTcoords$data<-sample(ncol(TUMOURS$data))
+    names(PATIENTcoords$data)<-colnames(TUMOURS$data)
+    
+    
     #.............. 
     progress <- shiny::Progress$new(style='old')
     progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0)
@@ -66,10 +82,10 @@ server <- function(input, output) {
       cnaonly <- TRUE
     }
     #..............
-    if (input$whereToNeglect=='While building search space' | input$whereToNeglect=='Always'){
-      toRemove <- input$toExclude
-    }else{ toRemove <- NULL
-    }
+    #if (input$whereToNeglect=='While building search space' | input$whereToNeglect=='Always'){
+    #  toRemove <- input$toExclude
+    #}else{ toRemove <- NULL
+    #}
 
     #..............
     progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0.5)
@@ -101,29 +117,28 @@ server <- function(input, output) {
       rownames(CLD) <- rn
 
       #..............
-      if (input$whereToNeglect=='While selecting cell lines' | input$whereToNeglect=='Always'){
-        toRemove <- input$toExclude
-
-        if(length(toRemove)>1){
-          CLD <- CLD[which(rowSums(CLD[,toRemove])==0),]
-        }else{
-          if (length(toRemove)>0){
-            CLD <- CLD[which(CLD[,toRemove]==0),]
-          }
-        }
-      }
+      # if (input$whereToNeglect=='While selecting cell lines' | input$whereToNeglect=='Always'){
+      #   toRemove <- input$toExclude
+      # 
+      #   if(length(toRemove)>1){
+      #     CLD <- CLD[which(rowSums(CLD[,toRemove])==0),]
+      #   }else{
+      #     if (length(toRemove)>0){
+      #       CLD <- CLD[which(CLD[,toRemove]==0),]
+      #     }
+      #   }
+      # }
       #..............
-      if (input$whatToInclude2!='Everything'){
+   #   if (input$whatToInclude2!='Everything'){
 
-        if (input$whatToInclude2=='Microsatellite stable'){
-          CLD <- CLD[which(MSI_STATUS[as.character(CIDS)]==0),]
-        } else{
-          CLD <- CLD[which(MSI_STATUS[as.character(CIDS)]==1),]
-        }
-      }
+#        if (input$whatToInclude2=='Microsatellite stable'){
+#          CLD <- CLD[which(MSI_STATUS[as.character(CIDS)]==0),]
+#        } else{
+#          CLD <- CLD[which(MSI_STATUS[as.character(CIDS)]==1),]
+#        }
+#      }
       #..............
 
-      CELLlineData$data <- CLD
     }
     #..............
 
@@ -134,6 +149,8 @@ server <- function(input, output) {
     #cnaLookUp$data <- CELLector.cna_look_up(input$cnaID , input$selectCancerType)
     
     #CLG_feature$data <- CELLector.get_cell_line_genomic_features(input$CLname, input$selectCancerType)
+    
+    
   })
 
   output$plot <- renderCollapsibleTree({
@@ -251,7 +268,32 @@ server <- function(input, output) {
     
     if(length(SELECTEDNODE$data)>0){
       
-      tmp <- CELLector.solveFormula(encodedSIGNATURES$data[[SELECTEDNODE$data]],dataset = CELLlineData$data)
+      if (length(input$subSet)>0 & input$checkboxNegation){
+          
+        FTE<-input$subSet
+        
+      }else{
+          FTE<-NULL
+        }
+      
+      
+      if(input$whatToInclude2=='Microsatellite stable'){
+          CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
+      }else{
+        if(input$whatToInclude2=='Microsatellite instable'){
+          CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus!="MSI-H")),COSMICids$data)]
+        }else{
+          CTE<-NULL
+        } 
+      }
+      
+      tmp <- CELLector.solveFormula(encodedSIGNATURES$data[[SELECTEDNODE$data]],dataset = CELLlineData$data,
+                                    To_beExcluded = CTE)
+      
+      
+      #tmp <- CELLector.solveFormula('cna27',dataset = CELLlineData$data)
+      
+      
       
       if(length(tmp)>0){
         N<-tmp$N
@@ -271,56 +313,66 @@ server <- function(input, output) {
       currentGlobalSupport <- NT$data$navTable$GlobalSupport[SELECTEDNODE$data]
       supportingPatients <- NT$data$navTable$positivePoints[SELECTEDNODE$data]
       
-      nn <- nrow(TUMOURS$data)
-      patients <- rep(0,nn)
-      names(patients) <- rownames(TUMOURS$data)
+      if (input$subSet!=''){
+        
+        if(!input$checkboxNegation){
+          nn <- length(which(TUMOURS$data[input$subSet,]>0))
+          patients <- rep(0,nn)
+          names(patients) <- names(which(TUMOURS$data[input$subSet,]>0))
+        }else{
+          nn <- length(which(TUMOURS$data[input$subSet,]==0))
+          patients <- rep(0,nn)
+          names(patients) <- names(which(TUMOURS$data[input$subSet,]==0))
+        }
+      }else{
+        nn <- ncol(TUMOURS$data)
+        patients <- rep(0,nn)
+        names(patients) <- colnames(TUMOURS$data)
+        
+      }
+      
+      
+      
       supportingPatients <- unlist(str_split(supportingPatients,','))
       patients[supportingPatients] <- 1
       
       tmpCol <- Get(Traverse(NT$data$TreeRoot,traversal = 'level'),'Colors')
+      
+     
       non <- names(tmpCol)
       non <- str_split(non,' ')
       non <- unlist(lapply(non,function(x){x[[1]][1]}))
       
       id <- which(non==SELECTEDNODE$data)
       
-      polar.plot(patients, 1:nn, main=paste("SubType ", SELECTEDNODE$data, ' (', format(100*currentGlobalSupport, digits=3),'% of ', nrow(TUMOURS$data), ' patients)',sep=''), lwd=3, line.col=tmpCol[id],rp.type = 'r', labels=NULL,show.grid=FALSE, show.radial.grid=FALSE, show.grid.labels=FALSE)
+      CCOL<-tmpCol[id]
       
-    } else{
-      if(!is.null(NT$data$navTable)){
-        
-        currentGlobalSupport <- NT$data$navTable$GlobalSupport[1]
-        supportingPatients <- NT$data$navTable$positivePoints[1]
-        
-        nn<-nrow(TUMOURS$data)
-        patients<-rep(0,nn)
-        names(patients)<-rownames(TUMOURS$data)
-        supportingPatients<-unlist(str_split(supportingPatients,','))
-        patients[supportingPatients]<-1
-        
-        polar.plot(patients,1:nn,
-                   main=paste("SubType ", 1, ' (', format(100*currentGlobalSupport, digits=3),'% of ',
-                              nrow(TUMOURS$data),' patients)',sep=''),lwd=3,
-                   line.col='blue',rp.type = 'r',
-                   labels=NULL,show.grid=FALSE,
-                   show.radial.grid=FALSE,show.grid.labels=FALSE)
-      }
-    }
+      CCCOL<-rep('lightgray',length(patients))
+      CCCOL[which(patients>0)]<-CCOL
+      
+      
+      
+      beeswarm(PATIENTcoords$data[names(patients)],method = 'hex',xaxt='n',yaxt='n',pwcol = CCCOL,pch=16,cex=1.5,
+               main=paste("SubType ", SELECTEDNODE$data,' (', format(100*currentGlobalSupport, digits=3),'% of ', nn, ' patients)',
+                          sep=''))
+      
+    } 
   })
   
   output$ComplementPieChart<-renderPlot({
-    
-    if(length(NT$data$TreeRoot)>0 & length(SELECTEDNODE$data)>0){
-      res<-CELLector_App.complementarPieChart(NT$data$TreeRoot,NT$data$navTable,SELECTEDNODE$data)
-      COLORS<-res$COLORS
-      res<-res$supports
-      
-      pie3D(res,explode = 0,labels =names(res),labelcex = 0.8,
-            col=c(COLORS,NA),
-            radius = 1,las=2,main = paste('Selected subpopulation \nwith respect to the entire cohort (total ',
-                                          NT$data$navTable$CurrentTotal[SELECTEDNODE$data],')',sep=''))
+     
+      if(length(NT$data$TreeRoot)>0 & length(SELECTEDNODE$data)>0){
+        res<-CELLector_App.complementarPieChart(NT$data$TreeRoot,NT$data$navTable,SELECTEDNODE$data)
+        COLORS<-res$COLORS
+        res<-res$supports
+        
+        pie3D(res,explode = 0,labels =names(res),labelcex = 0.8,
+              col=c(COLORS,NA),
+              radius = 1,las=2,main = paste('Selected subpopulation \nwith respect to the entire cohort (total ',
+                                            NT$data$navTable$CurrentTotal[SELECTEDNODE$data],')',sep=''))
+      }
     }
-  })
+    )
   
   
 }
