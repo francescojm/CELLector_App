@@ -108,7 +108,7 @@ ui <- fluidPage(
                                             'pathFocus',
                                             label = "2. Focus on CFEs in cancer pathways (max 3):",
                                             choices = c('',pathways),
-                                            selected="RAS-RAF-MEK-ERK / JNK signaling",
+                                            selected="",
                                             options = list(create = TRUE, maxItems = 3)
                                           ),
 
