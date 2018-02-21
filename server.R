@@ -20,35 +20,55 @@ server <- function(input, output) {
      
   
   
-  
-# output$cnaDecodeTable <- renderDataTable(CELLector.CFEs.CNAid_decode[CELLector.CFEs.CNAid_decode[,2]==input$selectCancerType,c(15,2,3,12,14)],
-#                                   options = list(
-#                                     pageLength = 10,autoWidth = FALSE)
-#                                   )
-#   
-  
   output$str <- renderPrint({
    if(!is.null(NT$data)){
-      
-      #TUMOURS$data<-CELLector.PrimTum.BEMs[[input$selectCancerType]]
-      #colnames(TUMOURS$data)<-paste(colnames(TUMOURS$data),'_',1:ncol(TUMOURS$data),sep='')
-
+     
      if (input$subSet!=''){
        if(!input$checkboxNegation){
          if (is.element(input$subSet,rownames(TUMOURS$data))){
           nn <- length(which(TUMOURS$data[input$subSet,]>0))
+          }else{
+            nn <- 0
+            }
+         if (is.element(input$subSet,colnames(CELLlineData$data))){
+           nc <- length(which(CELLlineData$data[,input$subSet]>0))
+           CL <- rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]>0)]
+           }else{
+             nc <- 0
+             CL<-NULL
+             }
          }else{
-           nn <-0
+           if (is.element(input$subSet,rownames(TUMOURS$data))){
+             nn <- length(which(TUMOURS$data[input$subSet,]==0))
+           }else{
+             nn <- ncol(TUMOURS$data)
+             
+           }
+           if (is.element(input$subSet,colnames(CELLlineData$data))){
+             nc <- length(which(CELLlineData$data[,input$subSet]==0))
+             CL <- rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]==0)]
+           }else{
+             nc <- nrow(CELLlineData$data)
+             CL<-rownames(CELLlineData$data)
+           }
          }
        }else{
-         nn <- length(which(TUMOURS$data[input$subSet,]==0))
-       }
-     }else{
-       nn <- ncol(TUMOURS$data)
+         nn <- ncol(TUMOURS$data)
+         nc <- nrow(CELLlineData$data)
+         CL<-rownames(CELLlineData$data)
        }
      
+      if(input$whatToInclude2=='Microsatellite stable'){
+        CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
+      }else{
+        if(input$whatToInclude2=='Microsatellite instable'){
+           CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus!="MSI-H")),COSMICids$data)]
+        }else{
+           CTE<-NULL
+        } 
+      }
      
-      nc <- nrow(CELLlineData$data)
+      nc<-length(setdiff(CL,CTE))
      
       pander::pander(paste(nc,input$selectCancerType,'cell lines and ',
                            nn,'patients considered in this session'))
@@ -98,6 +118,22 @@ server <- function(input, output) {
         
         nsig<-length(encodedSIGNATURES$data)
         
+        FTE<-NULL
+        if (input$subSet!='' & !input$checkboxNegation){
+          if (is.element(input$subSet,colnames(CELLlineData$data))){
+            FTE<-rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]==0)]
+          }else{
+            FTE<-rownames(CELLlineData$data)
+          }    
+        }
+        if (input$subSet!='' & input$checkboxNegation){
+          if (is.element(input$subSet,colnames(CELLlineData$data))){
+            FTE<-rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]==1)]
+          }else{
+            FTE<-NULL
+          }
+        }
+        
         if(input$whatToInclude2=='Microsatellite stable'){
           CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
         }else{
@@ -112,7 +148,7 @@ server <- function(input, output) {
         suppressWarnings(
           for (cc in 1:nsig){
             
-            solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = CTE)    
+            solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = union(CTE,FTE))    
             
             MODELS[cc]<-paste(sort(solved$PS),collapse=', ')
           }
@@ -147,6 +183,22 @@ server <- function(input, output) {
         
         MODELS<-vector()
         
+        FTE<-NULL
+        if (input$subSet!='' & !input$checkboxNegation){
+          if (is.element(input$subSet,colnames(CELLlineData$data))){
+            FTE<-rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]==0)]
+          }else{
+            FTE<-rownames(CELLlineData$data)
+          }    
+        }
+        if (input$subSet!='' & input$checkboxNegation){
+          if (is.element(input$subSet,colnames(CELLlineData$data))){
+            FTE<-rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]==1)]
+          }else{
+            FTE<-NULL
+          }
+        }
+        
         if(input$whatToInclude2=='Microsatellite stable'){
           CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
         }else{
@@ -157,9 +209,11 @@ server <- function(input, output) {
           } 
         }
         
+        
+        
         suppressWarnings(
           for (cc in 1:nsig){
-            solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = CTE)    
+            solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = union(CTE,FTE))    
             MODELS[cc]<-paste(sort(solved$PS),collapse=', ')
           }
         )
@@ -381,15 +435,21 @@ server <- function(input, output) {
     }
     
     if(length(SELECTEDNODE$data)>0){
-      
-      if (length(input$subSet)>0 & input$checkboxNegation){
-          
-        FTE<-input$subSet
-        
-      }else{
+      FTE<-NULL
+      if (input$subSet!='' & !input$checkboxNegation){
+        if (is.element(input$subSet,colnames(CELLlineData$data))){
+            FTE<-rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]==0)]
+        }else{
+            FTE<-rownames(CELLlineData$data)
+        }    
+      }
+      if (input$subSet!='' & input$checkboxNegation){
+        if (is.element(input$subSet,colnames(CELLlineData$data))){
+          FTE<-rownames(CELLlineData$data)[which(CELLlineData$data[,input$subSet]==1)]
+        }else{
           FTE<-NULL
         }
-      
+      }
       
       if(input$whatToInclude2=='Microsatellite stable'){
           CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
@@ -402,12 +462,7 @@ server <- function(input, output) {
       }
       
       tmp <- CELLector.solveFormula(encodedSIGNATURES$data[[SELECTEDNODE$data]],dataset = CELLlineData$data,
-                                    To_beExcluded = CTE)
-      
-      
-      #tmp <- CELLector.solveFormula('cna27',dataset = CELLlineData$data)
-      
-      
+                                    To_beExcluded = union(CTE,FTE))
       
       if(length(tmp)>0){
         N<-tmp$N
