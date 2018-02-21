@@ -108,7 +108,7 @@ ui <- fluidPage(
                                             'pathFocus',
                                             label = "2. Focus on CFEs in cancer pathways (max 3):",
                                             choices = c('',pathways),
-                                            selected='',
+                                            selected="RAS-RAF-MEK-ERK / JNK signaling",
                                             options = list(create = TRUE, maxItems = 3)
                                           ),
 
@@ -116,7 +116,7 @@ ui <- fluidPage(
                                                         choices = c('Microsatellite stable',
                                                                     'Microsatellite instable',
                                                                     'All'),
-                                                        selected = 'Everything',
+                                                        selected = 'All',
                                                         inline = FALSE)
                                           )
                                     )

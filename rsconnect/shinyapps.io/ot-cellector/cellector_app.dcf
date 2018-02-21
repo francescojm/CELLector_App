@@ -5,6 +5,6 @@ account: ot-cellector
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 267401
-bundleId: 1233409
+bundleId: 1233449
 url: https://ot-cellector.shinyapps.io/cellector_app/
-when: 1519222249.52526
+when: 1519223805.57831
