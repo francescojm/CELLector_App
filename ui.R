@@ -63,7 +63,7 @@ ui <- fluidPage(
                         # - - - - - - - - - - - - - - - - - - - - -
                         column(9,
                                 wellPanel(
-                                  h5("Primary Tumours Subtyping Criteria"),
+                                  h5("Primary Tumours: Subtyping Criteria"),
                                   fluidRow(
                                     column(5,
                                            radioButtons('whatToInclude', strong('Cancer Functional Events (CFEs) to consider:'),
@@ -96,7 +96,7 @@ ui <- fluidPage(
                                     column(6,
                                            selectizeInput(
                                              'subSet',
-                                             label = "1. Define subcohort based presence/absence of an individual CFE:",
+                                             label = "1. Define subcohort based on the status of an individual CFE:",
                                              choices = c('', features),
                                              selected = '',
                                              options = list(create = TRUE, maxItems = 1)
@@ -115,7 +115,7 @@ ui <- fluidPage(
                                            radioButtons('whatToInclude2', '3. Consider only cell lines that are:',
                                                         choices = c('Microsatellite stable',
                                                                     'Microsatellite instable',
-                                                                    'Everything'),
+                                                                    'All'),
                                                         selected = 'Everything',
                                                         inline = FALSE)
                                           )

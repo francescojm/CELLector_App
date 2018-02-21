@@ -71,7 +71,7 @@ server <- function(input, output) {
       nc<-length(setdiff(CL,CTE))
      
       pander::pander(paste(nc,input$selectCancerType,'cell lines and ',
-                           nn,'patients considered in this session [Re-build CELLector Search Space to Make any change to the criteria below effective]'))
+                           nn,'patients considered in this session [Re-build CELLector search space to make any change to the criteria below effective]'))
       
     }else{
       pander::pander('Build CELLector Search Space to START')
