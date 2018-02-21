@@ -32,8 +32,26 @@ server <- function(input, output) {
       
       #TUMOURS$data<-CELLector.PrimTum.BEMs[[input$selectCancerType]]
       #colnames(TUMOURS$data)<-paste(colnames(TUMOURS$data),'_',1:ncol(TUMOURS$data),sep='')
-      pander::pander(paste(dim(CELLlineData$data)[1],input$selectCancerType,'cell lines and ',
-                           ncol(TUMOURS$data),'patients considered in this session'))
+
+     if (input$subSet!=''){
+       if(!input$checkboxNegation){
+         if (is.element(input$subSet,rownames(TUMOURS$data))){
+          nn <- length(which(TUMOURS$data[input$subSet,]>0))
+         }else{
+           nn <-0
+         }
+       }else{
+         nn <- length(which(TUMOURS$data[input$subSet,]==0))
+       }
+     }else{
+       nn <- ncol(TUMOURS$data)
+       }
+     
+     
+      nc <- nrow(CELLlineData$data)
+     
+      pander::pander(paste(nc,input$selectCancerType,'cell lines and ',
+                           nn,'patients considered in this session'))
       
     }else{
       pander::pander('Build CELLector Search Space to START')

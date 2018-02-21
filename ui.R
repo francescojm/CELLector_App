@@ -24,7 +24,7 @@ ui <- fluidPage(
                       br(),
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       hr(),
-                      h3('COMING SOON'),
+                      h3('UNDER DEVELOPMENT'),
                       fluidRow(
                         # - - - - - - - - - - - - - - - - - - - - -
                         column(3,
@@ -38,7 +38,11 @@ ui <- fluidPage(
                                  downloadButton("DownSearchSpace", label = "Download Search Space"),
                                  br(), br(),
                                  p(h6("Tutorial available", a("here.", href="https://github.com/francescojm/CELLector_App" ,
-                                                              target="_blank"), icon("github-square")))
+                                                              target="_blank"), icon("github-square"))),
+                                 p(h6("Underlying data available at the", a("GDSC1000 data portal.", href="http://www.cancerrxgene.org/gdsc1000/GDSC1000_WebResources/Home.html" ,
+                                                              target="_blank")))
+                                 
+                                 
                                ),
                                
                                 
@@ -51,14 +55,14 @@ ui <- fluidPage(
                                                   downloadButton("CELLect", label = "CELLect Cell Lines"),
                                                   br(), #br(),
                                                   
-                                                  p(h6("Please cite:", a("xxxx", href = "https://github.com/francescojm/CELLector" , target="_blank"),icon("github-square")))
+                                                  p(h6("Please cite:", a("xxxx", href = "https://github.com/francescojm/CELLector" , target="_blank")))
                                                 )) )
                         ),
                         
                         # - - - - - - - - - - - - - - - - - - - - -
                         column(9,
                                 wellPanel(
-                                  h5("Criteria for Primary Tumours' Sub-typing"),
+                                  h5("Primary Tumours Subtyping Criteria"),
                                   p(h6("(re-build search space to make changes effective)")),
                                   fluidRow(
                                     column(5,
@@ -109,7 +113,7 @@ ui <- fluidPage(
                                             options = list(create = TRUE, maxItems = 3)
                                           ),
 
-                                           radioButtons('whatToInclude2', '4. Consider only cell lines that are:',
+                                           radioButtons('whatToInclude2', '3. Consider only cell lines that are:',
                                                         choices = c('Microsatellite stable',
                                                                     'Microsatellite instable',
                                                                     'Everything'),
@@ -123,8 +127,8 @@ ui <- fluidPage(
                         # - - - - - - - - - - - - - - - - - - - - -
                          column(6, 
                                   wellPanel(
-                                    p(h5("Id decoding for recurrently CN altered chromosomal segments")),
-                                    dataTableOutput('cnaDecodeTable')
+                                    p(h5("Id decoding for recurrently CN altered chromosomal segments (values in Id column should be used in box 1.)")),
+                                    dataTableOutput('cnaDecodeTable'),
                                     # h3("Recurrent Copy Number Alterations"),
                                     
                                     # selectInput("cnaID", label = h4("Look up:"), 
@@ -135,7 +139,8 @@ ui <- fluidPage(
                                     # 
                                     # hr(),
                                     # fluidRow(column(12, verbatimTextOutput("value")))
-                                    
+                                    p(h6("Full decoding table available at the", a("GDSC1000 data portal",
+                                                                                 href = "http://www.cancerrxgene.org/gdsc1000/GDSC1000_WebResources//Data/suppData/TableS2D.xlsx" , target="_blank")))
                                   ))
                       ),
                       # # - - - - - - - - - - - - - - - - - - - - -
