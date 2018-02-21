@@ -25,6 +25,7 @@ ui <- fluidPage(
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       hr(),
                       h3('UNDER DEVELOPMENT'),
+                      verbatimTextOutput("str"),
                       fluidRow(
                         # - - - - - - - - - - - - - - - - - - - - -
                         column(3,
@@ -63,7 +64,6 @@ ui <- fluidPage(
                         column(9,
                                 wellPanel(
                                   h5("Primary Tumours Subtyping Criteria"),
-                                  p(h6("(re-build search space to make changes effective)")),
                                   fluidRow(
                                     column(5,
                                            radioButtons('whatToInclude', strong('Cancer Functional Events (CFEs) to consider:'),
@@ -90,7 +90,6 @@ ui <- fluidPage(
                         column(3,
                                 wellPanel(
                                   p(h5("Supervised Search Space Construction")),
-                                  p(h6("(re-build search space to make changes effective)")),
                                   br(),
                                   # - - - - - - - - - - - - - - - - - - - - -
                                   fluidRow(
@@ -109,7 +108,7 @@ ui <- fluidPage(
                                             'pathFocus',
                                             label = "2. Focus on CFEs in cancer pathways (max 3):",
                                             choices = c('',pathways),
-                                            selected="RAS-RAF-MEK-ERK / JNK signaling",
+                                            selected='',
                                             options = list(create = TRUE, maxItems = 3)
                                           ),
 
@@ -144,7 +143,7 @@ ui <- fluidPage(
                                   ))
                       ),
                       # # - - - - - - - - - - - - - - - - - - - - -
-                      verbatimTextOutput("str"),
+                      
                       fluidRow(
                         column(9,
                                wellPanel(
