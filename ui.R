@@ -24,7 +24,7 @@ ui <- fluidPage(
                       br(),
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       hr(),
-                      h3('UNDER DEVELOPMENT'),
+                      h3('v1.0.0 (beta)'),
                       verbatimTextOutput("str"),
                       fluidRow(
                         # - - - - - - - - - - - - - - - - - - - - -
@@ -38,8 +38,8 @@ ui <- fluidPage(
                                  br(), br(),
                                  downloadButton("DownSearchSpace", label = "Download Search Space"),
                                  br(), br(),
-                                 p(h6("Tutorial available", a("here.", href="https://github.com/francescojm/CELLector_App" ,
-                                                              target="_blank"), icon("github-square"))),
+                                 p(h6("Tutorial available", a("here.", href="https://drive.google.com/open?id=1vTachWWefdS8sWFunBDh6ssIfwzhivJ6" ,
+                                                              target="_blank"))),
                                  p(h6("Underlying data available at the", a("GDSC1000 data portal.", href="http://www.cancerrxgene.org/gdsc1000/GDSC1000_WebResources/Home.html" ,
                                                               target="_blank")))
                                  
