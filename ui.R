@@ -56,7 +56,8 @@ ui <- fluidPage(
                                                   downloadButton("CELLect", label = "CELLect Cell Lines"),
                                                   br(), #br(),
                                                   
-                                                  p(h6("Please cite:", a("xxxx", href = "https://github.com/francescojm/CELLector" , target="_blank")))
+                                                  p(h6("Please cite:",
+                                                       a("Najgebauer et al. 2018 - CELLector: Genomics Guided Selection of Cancer in vitro Models", href = "https://www.biorxiv.org/content/early/2018/03/03/275032" , target="_blank")))
                                                 )) )
                         ),
                         
