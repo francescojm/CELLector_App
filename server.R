@@ -17,8 +17,6 @@ server <- function(input, output) {
                                      options = list(
                                        pageLength = 10,autoWidth = FALSE)
                                      )
-     
-  
   
   output$str <- renderPrint({
    if(!is.null(NT$data)){
@@ -150,6 +148,7 @@ server <- function(input, output) {
             
             solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = union(CTE,FTE))    
             
+            
             MODELS[cc]<-paste(sort(solved$PS),collapse=', ')
           }
         )
@@ -211,29 +210,37 @@ server <- function(input, output) {
         
         
         
+        # suppressWarnings(
+        #   for (cc in 1:nsig){
+        #     solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = union(CTE,FTE))    
+        #     MODELS[cc]<-paste(sort(solved$PS),collapse=', ')
+        #   }
+        # )
+        # 
+        # toSave<-cbind(toSave,MODELS)
+        # colnames(toSave)[ncol(toSave)]<-'Representative Cell Line'
+        # 
+        # visit<-CELLector.selectionVisit(NT$data$navTable)
+        # 
+        # ncellLines<-input$N.CellLines
+        # sortedModels<-MODELS[visit]
+        # 
+        # NODEidx<-visit[which(sortedModels!='')]
+        # sortedModels<-sortedModels[which(sortedModels!='')]
+        # modelMat<-CELLector.buildModelMatrix(sortedModels)
+        # 
+        
         suppressWarnings(
-          for (cc in 1:nsig){
-            solved<-CELLector.solveFormula(encodedSIGNATURES$data[[cc]],dataset = CELLlineData$data,To_beExcluded = union(CTE,FTE))    
-            MODELS[cc]<-paste(sort(solved$PS),collapse=', ')
-          }
+        res<-CELLector.makeSelection(modelMat = CELLector.buildModelMatrix(encodedSIGNATURES$data,
+                                                                           CELLlineData$data,
+                                                                           NT$data$navTable),
+                                     input$N.CellLines,
+                                     NT$data$navTable)
         )
         
-        toSave<-cbind(toSave,MODELS)
-        colnames(toSave)[ncol(toSave)]<-'Representative Cell Line'
+        #res$modelAccounted<-NODEidx[res$modelAccounted]
         
-        visit<-CELLector.selectionVisit(NT$data$navTable)
-        
-        ncellLines<-input$N.CellLines
-        sortedModels<-MODELS[visit]
-        
-        NODEidx<-visit[which(sortedModels!='')]
-        sortedModels<-sortedModels[which(sortedModels!='')]
-        modelMat<-CELLector.buildModelMatrix(sortedModels)
-        
-        res<-CELLector.makeSelection(modelMat,ncellLines)
-        res$modelAccounted<-NODEidx[res$modelAccounted]
-        
-        colnames(res)<-c('Tumour SubType Index','Representative Cell Line')
+        #colnames(res)<-c('Tumour SubType Index','Representative Cell Line')
         write.table(res, file,sep='\t', row.names = FALSE, quote=FALSE)    
       }
     }
@@ -241,13 +248,9 @@ server <- function(input, output) {
   
   observeEvent(input$action, {
     CELLlineData$data<-CELLector.CellLine.BEMs[[input$selectCancerType]]
-    r<-CELLlineData$data[,2]
-    COSMICids$data<-CELLlineData$data[,1]
-    CELLlineData$data<-CELLlineData$data[,3:ncol(CELLlineData$data)]
-    rownames(CELLlineData$data)<-r
     SELECTEDNODE$data <- NULL
     TUMOURS$data <- CELLector.PrimTum.BEMs[[input$selectCancerType]]
-    colnames(TUMOURS$data)<-paste(colnames(TUMOURS$data),'_',1:ncol(TUMOURS$data),sep='')
+    TUMOURS$data <- CELLector.unicizeSamples(TUMOURS$data)
     FEATURES$data <- rownames(TUMOURS$data)
     
     PATIENTcoords$data<-sample(ncol(TUMOURS$data))
