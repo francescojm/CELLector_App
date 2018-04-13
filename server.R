@@ -330,27 +330,29 @@ server <- function(input, output) {
       
       if (nrow(NT$data$navTable)>1){
         
-        CC <- colors(distinct = TRUE)
-        CC <- CC[setdiff(1:length(CC),grep('gray',CC))]
-        CC <- rgb(t(col2rgb(CC)),maxColorValue = 255)
-        
-        COLORSbyLev <- CC[sample(length(CC))][1:NT$data$TreeRoot$totalCount]
-        
-        RelatesToFatherAs <- rep('-',NT$data$TreeRoot$totalCount)
-        RelatesToFatherAs[which(Get(Traverse(NT$data$TreeRoot,traversal = 'level'),attribute = 'NodeType')=='Right.Child')]<-'Complement'
-        RelatesToFatherAs[which(Get(Traverse(NT$data$TreeRoot,traversal = 'level'),attribute = 'NodeType')=='Left.Child')]<-'Refinement'
-        
-        NT$data$TreeRoot$Set(Colors=COLORSbyLev,traversal = 'level')
-        NT$data$TreeRoot$Set(RelatesToFatherAs=RelatesToFatherAs,traversal = 'level')
-        
+        # CC <- colors(distinct = TRUE)
+        # CC <- CC[setdiff(1:length(CC),grep('gray',CC))]
+        # CC <- rgb(t(col2rgb(CC)),maxColorValue = 255)
+        # 
+        # COLORSbyLev <- CC[sample(length(CC))][1:NT$data$TreeRoot$totalCount]
+        # 
+        # RelatesToFatherAs <- rep('-',NT$data$TreeRoot$totalCount)
+        # RelatesToFatherAs[which(Get(Traverse(NT$data$TreeRoot,traversal = 'level'),attribute = 'NodeType')=='Right.Child')]<-'Complement'
+        # RelatesToFatherAs[which(Get(Traverse(NT$data$TreeRoot,traversal = 'level'),attribute = 'NodeType')=='Left.Child')]<-'Refinement'
+        # 
+        # NT$data$TreeRoot$Set(Colors=COLORSbyLev,traversal = 'level')
+        # NT$data$TreeRoot$Set(RelatesToFatherAs=RelatesToFatherAs,traversal = 'level')
+
         SunBurstSequences$data<-CELLector_App.sunBurstFormat(NT$data$navTable)
         
-        collapsibleTree(NT$data$TreeRoot,
-                        fill = 'Colors',
-                        inputId = 'searchSpace',
-                        tooltip = TRUE,
-                        attribute = 'RelatesToFatherAs')
+        CELLector.visualiseSearchingSpace(searchSpace = NT$data,CLdata=CELLlineData$data)
         
+        # collapsibleTree(NT$data$TreeRoot,
+        #                 fill = 'Colors',
+        #                 inputId = 'searchSpace',
+        #                 tooltip = TRUE,
+        #                 attribute = 'RelatesToFatherAs')
+        # 
       } 
     }
   })
