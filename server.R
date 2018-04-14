@@ -286,7 +286,7 @@ server <- function(input, output, session) {
       
       pathways<-input$pathFocus
   
-      if(sum(is.element(pathways,names(CELLector.Pathway_CFEs))!=length(pathways))){
+      if(sum(is.element(pathways,names(CELLector.Pathway_CFEs)))!=length(pathways)){
         session$sendCustomMessage(type = 'testmessage',
                                   message = 'Searching Space not built: Invalid pathway identifier inserted')
         return()
