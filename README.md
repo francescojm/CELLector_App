@@ -7,6 +7,9 @@ CELLector is a computational tool to assist the selection of the most relevant c
 
 License: MIT
 
+
+![alt text](www/Figure2.jpg)
+
 ## Running Modalities
 
 CELLector can be used in three different modalities:
