@@ -330,72 +330,49 @@ server <- function(input, output) {
       
       if (nrow(NT$data$navTable)>1){
         
-        # CC <- colors(distinct = TRUE)
-        # CC <- CC[setdiff(1:length(CC),grep('gray',CC))]
-        # CC <- rgb(t(col2rgb(CC)),maxColorValue = 255)
-        # 
-        # COLORSbyLev <- CC[sample(length(CC))][1:NT$data$TreeRoot$totalCount]
-        # 
-        # RelatesToFatherAs <- rep('-',NT$data$TreeRoot$totalCount)
-        # RelatesToFatherAs[which(Get(Traverse(NT$data$TreeRoot,traversal = 'level'),attribute = 'NodeType')=='Right.Child')]<-'Complement'
-        # RelatesToFatherAs[which(Get(Traverse(NT$data$TreeRoot,traversal = 'level'),attribute = 'NodeType')=='Left.Child')]<-'Refinement'
-        # 
-        # NT$data$TreeRoot$Set(Colors=COLORSbyLev,traversal = 'level')
-        # NT$data$TreeRoot$Set(RelatesToFatherAs=RelatesToFatherAs,traversal = 'level')
-
-        SunBurstSequences$data<-CELLector_App.sunBurstFormat(NT$data$navTable)
-        
         CELLector.visualiseSearchingSpace(searchSpace = NT$data,CLdata=CELLlineData$data)
         
-        # collapsibleTree(NT$data$TreeRoot,
-        #                 fill = 'Colors',
-        #                 inputId = 'searchSpace',
-        #                 tooltip = TRUE,
-        #                 attribute = 'RelatesToFatherAs')
-        # 
-      } 
+        } 
     }
   })
   
   output$sunburst <- renderSunburst({
     #invalidateLater(1000, session)
     if(length(NT$data)>0){
-      sequences <- SunBurstSequences$data
-      
-      tmpCol <- Get(Traverse(NT$data$TreeRoot,traversal = 'level'),'Colors')
-      ttmp<-tmpCol
-      
-      names(ttmp)<-NULL
-      
-      nvoid<-grep('Others',unique(unlist(strsplit(sequences$V1,'-'))),value = TRUE)
-      
-      stpes<-nvoid
-      
-      colors <- list(
-        domain=c('0 TOTAL',names(tmpCol),stpes),
-        range=c('black',ttmp,rep('white',length(stpes)))
-      )
-      
-      #add_shiny(
-      #          )
-      
-
-
-      htmlwidgets::onRender(
-        sunburst(sequences,breadcrumb = list(w = 400),percent = FALSE,count = FALSE,colors=colors,
-
-                 explanation = "function(d) {     var ssr = d.data.name
-                 if (!ssr.match(/Others/gi)){
-                 return ssr
-                 }
-    }"),
-        "
-        function(el,x){
-        d3.select(el).select('.sunburst-sidebar').remove()
-        }
-        "
-        )
-    }
+    
+      CELLector.visualiseSearchingSpace_sunBurst(NT$data)
+        
+    #   sequences <- SunBurstSequences$data
+    #   
+    #   tmpCol <- Get(Traverse(NT$data$TreeRoot,traversal = 'level'),'Colors')
+    #   ttmp<-tmpCol
+    #   
+    #   names(ttmp)<-NULL
+    #   
+    #   nvoid<-grep('Others',unique(unlist(strsplit(sequences$V1,'-'))),value = TRUE)
+    #   
+    #   stpes<-nvoid
+    #   
+    #   colors <- list(
+    #     domain=c('0 TOTAL',names(tmpCol),stpes),
+    #     range=c('black',ttmp,rep('white',length(stpes)))
+    #   )
+    # 
+    #   htmlwidgets::onRender(
+    #     sunburst(sequences,breadcrumb = list(w = 400),percent = FALSE,count = FALSE,colors=colors,
+    # 
+    #              explanation = "function(d) {     var ssr = d.data.name
+    #              if (!ssr.match(/Others/gi)){
+    #              return ssr
+    #              }
+    # }"),
+    #     "
+    #     function(el,x){
+    #     d3.select(el).select('.sunburst-sidebar').remove()
+    #     }
+    #     "
+    #     )
+     }
   })
   
   output$NodeDetails<-renderTable({
