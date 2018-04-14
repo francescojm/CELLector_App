@@ -59,32 +59,19 @@ server <- function(input, output, session) {
       if(input$whatToInclude2=='Microsatellite stable'){
         CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus=="MSI-H")),COSMICids$data)]
         nc<-length(setdiff(CL,CTE))
-        
-        pander::pander(paste(nc,'cell lines and ',
-                             nn,'patients considered in this session\n\n[Re-build CELLector Search Space to Make any change to the criteria below effective]'))
-        
+         
       }else{
         if(input$whatToInclude2=='Microsatellite instable'){
            CTE<-rownames(CELLlineData$data)[match(names(which(CELLector.MSIstatus!="MSI-H")),COSMICids$data)]
-           
-           if(length(intersect(names(which(CELLector.MSIstatus=="MSI-H")),CELLector.CellLine.BEMs[[input$selectCancerType]]$COSMIC_identifier)) < 2){
-             pander::pander('WARNING! < 2 MicroSatellite instable cell lines available for the selected cancer type.\n[Change your setting and Rebuilt the Search Space]')
-           }else{
-             nc<-length(setdiff(CL,CTE))
-             
-             pander::pander(paste(nc,'cell lines and ',
-                                  nn,'patients considered in this session\n\n[Re-build CELLector Search Space to Make any change to the criteria below effective]'))
-             
-           }
+           nc<-length(setdiff(CL,CTE))
         }else{
            CTE<-NULL
-           pander::pander(paste(nc,'cell lines and ',
-                                nn,'patients considered in this session\n\n[Re-build CELLector Search Space to Make any change to the criteria below effective]'))
-           
         } 
       }
      
-        
+     pander::pander(paste(nc,'cell lines and ',
+                          nn,'patients considered in this session\n\n[Re-build CELLector Search Space to Make any change to the criteria below effective]'))
+     
     }else{
       pander::pander('Build CELLector Search Space to START')
    }
@@ -252,7 +239,22 @@ server <- function(input, output, session) {
     
     toInclude<-intersect(toInclude,CELLlineData$data$COSMIC_identifier)
     
-    if (length(toInclude)>0){
+    if(length(toInclude)<2){
+      if(length(toInclude)==0){
+        message=paste('Searching Space not built: no',input$whatToInclude2,
+                                           input$selectCancerType,'cell lines available')
+        }else{
+          message=paste('Searching Space not built: only 1',input$whatToInclude2,
+                        input$selectCancerType,'cell line available:',
+                        CELLlineData$data$CellLine[
+                          match(as.character(toInclude),CELLlineData$data$COSMIC_identifier)])
+          
+          }
+      session$sendCustomMessage(type = 'testmessage',
+                                message = message)
+      return()
+    }
+    
       CELLlineData$data<-CELLlineData$data[match(toInclude,CELLlineData$data$COSMIC_identifier),]  
     
       SELECTEDNODE$data <- NULL
@@ -264,10 +266,6 @@ server <- function(input, output, session) {
       names(PATIENTcoords$data)<-colnames(TUMOURS$data)
       
       
-      #.............. 
-      progress <- shiny::Progress$new(style='old')
-      progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0)
-      #.............. 
       ctype <- input$selectCancerType
       CTYPE$data <- ctype
       
@@ -284,6 +282,19 @@ server <- function(input, output, session) {
       if(input$whatToInclude=='Recurrently CN altered chromosomal segments'){
         cnaonly <- TRUE
       }
+      
+      
+      pathways<-input$pathFocus
+  
+      if(sum(is.element(pathways,names(CELLector.Pathway_CFEs))!=length(pathways))){
+        session$sendCustomMessage(type = 'testmessage',
+                                  message = 'Searching Space not built: Invalid pathway identifier inserted')
+        return()
+      }
+        
+      progress <- shiny::Progress$new(style='old')
+      progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0)
+      
       
       progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0.5)
       NT$data<- CELLector.Build_Search_Space(ctumours = t(TUMOURS$data),
@@ -313,13 +324,11 @@ server <- function(input, output, session) {
         CLD <- as.matrix(CLD[,3:ncol(CLD)])
         rownames(CLD) <- rn
         
+        
+        
+        progress$set(message = "Done!", value = 1)
+        progress$close()
       }
-      
-      progress$set(message = "Done!", value = 1)
-      progress$close()
-    
-    }
-    
     })
   
   observeEvent(input$changeColors, {

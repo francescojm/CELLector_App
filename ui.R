@@ -1,5 +1,6 @@
 
 ui <- fluidPage(
+  tags$head(tags$script(src = "message-handler.js")),
   navbarPage(theme = shinytheme("yeti"), # other options: "cosmo","yeti","lumen"
              title = "CELLector",
              tabPanel(title = "Select",
