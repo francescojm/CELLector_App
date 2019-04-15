@@ -306,7 +306,7 @@ ui <- fluidPage(
                                                            ))
                                                            ),
                                                     column(3,radioButtons('CMP_msi_status',label = 'MSI status:',
-                                                                          choices = c('MSI-S','MSI-L','MSI-H','MSI-L/H','All (including NA)'),
+                                                                          choices = c('MSS','MSI','All (including NA)'),
                                                                           selected = 'All (including NA)')),
                                                     column(3,
                                                            wellPanel(
