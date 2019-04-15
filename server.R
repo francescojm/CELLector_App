@@ -13,10 +13,16 @@
 #' @examples
 server <- function(input, output, session) {
   
+  
+  
   output$cnaDecodeTable <- renderDataTable(CNAid_decode[CNAid_decode$CancerType==input$selectCancerType,],
                                      options = list(
-                                       pageLength = 10,autoWidth = FALSE)
+                                       pageLength = 5,autoWidth = FALSE)
                                      )
+  output$hmsDecodeTable <- renderDataTable(HMSid_decode[HMSid_decode$CancerType==input$selectCancerType,],
+                                           options = list(
+                                             pageLength = 5,autoWidth = FALSE)
+  )
   
   output$str <- renderPrint({
    if(!is.null(NT$data)){
@@ -78,6 +84,32 @@ server <- function(input, output, session) {
   })
   
   
+  output$str_UD_CL_BEM_STATUS <- renderPrint({
+    if(length(UD_CL_BEM$data)==0){
+      pander::pander('No in-vitro models BEM built yet.')
+      
+      }else{
+      
+        tmp<-as.matrix(UD_CL_BEM$data[,3:ncol(UD_CL_BEM$data)])
+        pander::pander(paste(paste(UD_CL_BEM_TISSUE$data,': ',
+                                   paste(UD_CL_BEM_CTYPE$data,collapse=', '),
+                                   '\nBEM built and ready to be saved.\n',
+                                   dim(tmp)[1],' in-vitro models x ',
+                                   dim(tmp)[2],' mutated genes',sep='')))
+        
+      }})
+  
+  output$str_UD_TCGA_BEM_STATUS <- renderPrint({
+    if(length(UD_TUM_BEM$data)==0){
+      pander::pander('No tumours BEM built yet.')
+    }else{
+      
+      pander::pander(paste(paste(UD_TUM_BEM_CTYPE$data,': ',
+                                 '\nBEM built and ready to be saved.\n',
+                                 dim(UD_TUM_BEM$data)[2],' tumours x ',
+                                 dim(UD_TUM_BEM$data)[1],' mutated genes',sep='')))
+      
+    }})
   
   TUMOURS <- reactiveValues(data = NULL)
   FEATURES <- reactiveValues(data = NULL)
@@ -94,10 +126,21 @@ server <- function(input, output, session) {
   COSMICids<-reactiveValues(data = NULL)
   
   
+  UserDefinedPrimTum<-reactiveValues(data = NULL)
+  UserDefinedCellLines<-reactiveValues(data = NULL)
+  
+  UD_CL_BEM<-reactiveValues(data = NULL)
+  UD_CL_BEM_TISSUE<-reactiveValues(data = NULL)
+  UD_CL_BEM_CTYPE<-reactiveValues(data = NULL)
+  
+  UD_TUM_BEM<-reactiveValues(data = NULL)
+  UD_TUM_BEM_CTYPE<-reactiveValues(data = NULL)
+  
   STATUS <- reactiveValues(data = NULL)
   
   
   output$DownSearchSpace <- downloadHandler(
+    
     filename = function(){
       paste("CELLector_SearchSpace_", input$selectCancerType, "_", Sys.Date(), ".tsv", sep = "")
     },
@@ -169,6 +212,8 @@ server <- function(input, output, session) {
         
       }
       
+    
+        
     }
   )
   
@@ -212,6 +257,9 @@ server <- function(input, output, session) {
           } 
         }
         
+        
+        
+        
         suppressWarnings(
         res<-CELLector.makeSelection(modelMat = CELLector.buildModelMatrix(encodedSIGNATURES$data,
                                                                            CELLlineData$data,
@@ -226,40 +274,53 @@ server <- function(input, output, session) {
   )
   
   observeEvent(input$action, {
-    CELLlineData$data<-CELLector.CellLine.BEMs[[input$selectCancerType]]
-    toInclude<-CELLlineData$data$COSMIC_identifier
+  
+    if(!input$UDgenomic){
+      if(length(input$useMeth)>0){
+        CELLector.PrimTum.BEMs<-OrPrimTumBEMs_v2[2:length(OrPrimTumBEMs)]
+        CELLlineData$data<-OrCellLineBEMs_v2[[input$selectCancerType]]
+      }else{
+        CELLector.PrimTum.BEMs<-OrPrimTumBEMs[2:length(OrPrimTumBEMs)]
+        CELLlineData$data<-OrCellLineBEMs[[input$selectCancerType]]
+      }
+      TUMOURS$data <- CELLector.PrimTum.BEMs[[input$selectCancerType]]
+      TUMOURS$data <- CELLector.unicizeSamples(TUMOURS$data)
     
-    if(input$whatToInclude2=='Microsatellite stable'){
-      toInclude<-names(which(CELLector.MSIstatus!="MSI-H"))
-    }
-    
-    if(input$whatToInclude2=='Microsatellite instable'){
-      toInclude<-names(which(CELLector.MSIstatus=="MSI-H"))
-    }
-    
-    toInclude<-intersect(toInclude,CELLlineData$data$COSMIC_identifier)
-    
-    if(length(toInclude)<2){
-      if(length(toInclude)==0){
-        message=paste('Searching Space not built: no',input$whatToInclude2,
-                                           input$selectCancerType,'cell lines available')
+      toInclude<-CELLlineData$data$COSMIC_identifier
+      
+      if(input$whatToInclude2=='Microsatellite stable'){
+        toInclude<-names(which(CELLector.MSIstatus!="MSI-H"))
+      }
+      
+      if(input$whatToInclude2=='Microsatellite instable'){
+        toInclude<-names(which(CELLector.MSIstatus=="MSI-H"))
+      }
+      
+      toInclude<-intersect(toInclude,CELLlineData$data$COSMIC_identifier)
+      
+      tmp<-setdiff(input$whatToInclude2,'All')
+      
+      if(length(toInclude)<2){
+        if(length(toInclude)==0){
+          
+          
+          message=paste('Searching Space not built: no',tmp,
+                        input$selectCancerType,'cell lines available')
         }else{
-          message=paste('Searching Space not built: only 1',input$whatToInclude2,
+          message=paste('Searching Space not built: only 1',tmp,
                         input$selectCancerType,'cell line available:',
                         CELLlineData$data$CellLine[
                           match(as.character(toInclude),CELLlineData$data$COSMIC_identifier)])
           
-          }
-      session$sendCustomMessage(type = 'testmessage',
-                                message = message)
-      return()
-    }
-    
-      CELLlineData$data<-CELLlineData$data[match(toInclude,CELLlineData$data$COSMIC_identifier),]  
-    
+        }
+        session$sendCustomMessage(type = 'testmessage',
+                                  message = message)
+        return()
+      }
+      
+      CELLlineData$data<-CELLlineData$data[match(toInclude,CELLlineData$data$COSMIC_identifier),]
+      
       SELECTEDNODE$data <- NULL
-      TUMOURS$data <- CELLector.PrimTum.BEMs[[input$selectCancerType]]
-      TUMOURS$data <- CELLector.unicizeSamples(TUMOURS$data)
       FEATURES$data <- rownames(TUMOURS$data)
       
       PATIENTcoords$data<-sample(ncol(TUMOURS$data))
@@ -285,32 +346,36 @@ server <- function(input, output, session) {
       
       
       pathways<-input$pathFocus
-  
+      
       if(sum(is.element(pathways,names(CELLector.Pathway_CFEs)))!=length(pathways)){
         session$sendCustomMessage(type = 'testmessage',
                                   message = 'Searching Space not built: Invalid pathway identifier inserted')
         return()
       }
-        
-      progress <- shiny::Progress$new(style='old')
-      progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0)
       
+      progress <- shiny::Progress$new(style='notification')
       
       progress$set(message = "Loading primary tumour data and building CELLector Search Space... Please Wait", value = 0.5)
-      NT$data<- CELLector.Build_Search_Space(ctumours = t(TUMOURS$data),
-                                             cancerType = input$selectCancerType,
-                                             minlen=input$minSetSize,
-                                             mutOnly = (input$whatToInclude=='Mutations in high confidence cancer genes'),
-                                             cnaOnly = (input$whatToInclude=='Recurrently CN altered chromosomal segments'),
-                                             minGlobSupp = input$minGlobalSupport/100,
-                                             FeatureToExclude = input$toExclude,
-                                             pathwayFocused = input$pathFocus,
-                                             pathway_CFEs = CELLector.Pathway_CFEs,
-                                             cnaIdMap = CELLector.CFEs.CNAid_mapping,
-                                             cnaIdDecode = CELLector.CFEs.CNAid_decode,
-                                             cdg = CELLector.HCCancerDrivers,
-                                             subCohortDefinition=input$subSet,
-                                             NegativeDefinition=input$checkboxNegation)
+      
+      
+      NT$data<-CELLector.Build_Search_Space(ctumours = t(TUMOURS$data),
+                                            minGlobSupp = input$minGlobalSupport/100,
+                                            minlen=input$minSetSize,
+                                            cancerType = input$selectCancerType,
+                                            pathwayFocused = input$pathFocus,
+                                            pathway_CFEs = CELLector.Pathway_CFEs,
+                                            cnaIdMap = CELLector.CFEs.CNAid_mapping,
+                                            cnaIdDecode = CELLector.CFEs.CNAid_decode,
+                                            hmsIdDecode = CELLector.CFEs.HMSid_decode,
+                                            includeHMS = length(input$useMeth)>0,
+                                            cdg = CELLector.HCCancerDrivers,
+                                            subCohortDefinition=input$subSet,
+                                            NegativeDefinition=input$checkboxNegation,
+                                            mutOnly = (input$whatToInclude=='Mutations in high confidence cancer genes'),
+                                            cnaOnly = (input$whatToInclude=='Recurrently CN altered chromosomal segments'),
+                                            FeatureToExclude=input$toExclude)
+      
+      
       if(nrow(NT$data$navTable)>0){
         
         S <- CELLector.createAllSignatures(NavTab = NT$data$navTable)
@@ -328,18 +393,142 @@ server <- function(input, output, session) {
         
         progress$set(message = "Done!", value = 1)
         progress$close()
+        }
+      }else{
+        if (length(UserDefinedPrimTum$data)==0 | length(UserDefinedCellLines$data)==0){
+          showModal(modalDialog(
+            title = "No Data found!",
+            "Please upload and validate BEMs respectively for Primary Tumours and Cell Lines (or other in-vitro models) first."
+          ))
+          }else{
+            CELLector.PrimTum.BEMs<-UserDefinedPrimTum$data
+            CELLlineData$data<-UserDefinedCellLines$data
+            TUMOURS$data <- CELLector.PrimTum.BEMs
+            TUMOURS$data <- CELLector.unicizeSamples(TUMOURS$data)
+             
+            SELECTEDNODE$data <- NULL
+            FEATURES$data <- rownames(TUMOURS$data)
+             
+            PATIENTcoords$data<-sample(ncol(TUMOURS$data))
+            names(PATIENTcoords$data)<-colnames(TUMOURS$data)
+             
+            minLen <- input$minSetSize
+            minGlobSupp <- input$minGlobalSupport/100
+            
+             
+            progress <- shiny::Progress$new(style='notification')
+             
+            progress$set(message = "Building CELLector Search Space... Please Wait", value = 0.5)
+             
+             
+            NT$data<-CELLector.Build_Search_Space(ctumours = t(TUMOURS$data),
+                                                  minGlobSupp = input$minGlobalSupport/100,
+                                                  minlen=input$minSetSize,
+                                                  cancerType = 'User Defined',
+                                                  cnaIdDecode = CELLector.CFEs.CNAid_decode,
+                                                  hmsIdDecode = CELLector.CFEs.HMSid_decode,
+                                                  includeHMS = FALSE,
+                                                  cdg = colnames(TUMOURS$data),
+                                                  FeatureToExclude=input$toExclude)
+            # 
+            # 
+            # if(nrow(NT$data$navTable)>0){
+            #   
+            #   S <- CELLector.createAllSignatures(NavTab = NT$data$navTable)
+            #   
+            #   SIGNATURES$data <- S$S
+            #   encodedSIGNATURES$data <- S$ES
+            #   
+            #   CLD <- CELLector.CellLine.BEMs[[input$selectCancerType]]
+            #   CIDS <- CLD$COSMIC_identifier
+            #   rn <- CLD[,2]
+            #   CLD <- as.matrix(CLD[,3:ncol(CLD)])
+            #   rownames(CLD) <- rn
+            #   
+            #   
+            #   
+              
+             progress$set(message = "Done!", value = 1)
+             progress$close()
+            # }
+          }
       }
     })
+
   
   observeEvent(input$changeColors, {
     if(length(NT$data)>0){
-      
-      
       NT$data<-CELLector.changeSScolors(NT$data)
-      
     }
   })
   
+  observeEvent(input$ValidateUpdateBEMs, {
+    
+    inFile_primTum <- input$ud_tumourBEMs
+    inFile_cellLin <- input$ud_cellLineBEMs
+    
+    ErrFlag<-0
+
+    
+    if(length(inFile_primTum)==0 | length(inFile_cellLin)==0){
+      ErrFlag<-1
+      showModal(modalDialog(
+        title = "Warning!",
+        "Please select two 2 RData object files, containing Binary genomic Event Matrices for primary tumours and cell lines (respectively)."
+      ))
+    }else{
+      if(tolower(file_ext(inFile_primTum$name))!='rdata' | tolower(file_ext(inFile_cellLin$name))!='rdata'){
+        ErrFlag<-1
+        showModal(modalDialog(
+          title = "Warning!",
+          "Wrong file format. Please select two RData object files"
+          ))  
+      }
+      if(inFile_primTum$name==inFile_cellLin$name){
+        ErrFlag<-1
+        showModal(modalDialog(
+          title = "Warning!",
+          "Please select two distict files"
+        ))  
+      }
+      
+    }
+    
+    if(!ErrFlag){
+      oldWS<-ls()
+      load(inFile_primTum$datapath)
+      primTum_objName<-setdiff(ls(),c(oldWS,'oldWS'))
+      
+      oldWS<-ls()
+      load(inFile_cellLin$datapath)
+      cellLin_objName<-setdiff(ls(),c(oldWS,'oldWS'))
+      
+      primTum_object<-eval(parse(text=primTum_objName))
+      cellLin_object<-eval(parse(text=cellLin_objName))
+      
+      if(!is.matrix(primTum_object)){
+        ErrFlag<-1
+        showModal(modalDialog(
+          title = "Warning!",
+          "The Binary genomic Event Matrices for primary Tumours shoud be a binary event matrix (BEM) modeling, respectively a cohort of cancer patients and a set of cell lines. With cancer functional events (CFEs) on the columns and sample identifers on the rows. See the documentation entry for the CELLector.PrimTum.BEMs object for further details"
+        ))  
+        }
+      
+      if(!ErrFlag){
+        UserDefinedPrimTum$data<-primTum_object
+        UserDefinedCellLines$data<-cellLin_object
+
+        showModal(modalDialog(
+          title = "Binary event matrix file names and format look good",
+          "Build the CELLector search space to start"
+        ))  
+      }else{
+        updateCheckboxInput(session,'UDgenomic', value = FALSE)
+      }
+    }else{
+      updateCheckboxInput(session,'UDgenomic', value = FALSE)
+    }
+  })
   
   output$plot <- renderCollapsibleTree({
     
@@ -539,5 +728,494 @@ server <- function(input, output, session) {
     }
     )
   
+  output$score <- downloadHandler(
+    filename = function(){
+      paste("CELLector_scores_", input$selectCancerType, "_", Sys.Date(), ".tsv", sep = "")
+    },
+    content = function(file) {
+      if(length(NT$data)>0){
+        res<-CELLector.Score(NT$data$navTable,CELLlineData$data,input$scoreAlpha) 
+        
+        write.table(res, file,sep='\t', row.names = FALSE, quote=FALSE)    
+      }
+    }
+  )
+  
+  output$CMP_selectCancerType_uiOutput <- renderUI({
+    choices_ = sort(unique(CMPs_model_annotations$cancer_type[which(CMPs_model_annotations$tissue==input$CMP_selectTissue)]))
+    selectInput("CMP_selectCancerType", "Cancer Type:", choices = choices_,selected = choices_,multiple = TRUE)
+  })
+  
+  output$CMP_selectCancerType_details_uiOutput <- renderUI({
+    choices_ = sort(unique(CMPs_model_annotations$cancer_type_detail[which(CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                                                                      is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType))]))
+    selectInput("CMP_selectCancerType_detailed", "Cancer Type Details:", choices = choices_,selected = choices_,multiple = TRUE)
+  })
+  
+  output$CMP_selectSample_site_uiOutput <- renderUI({
+    choices_ = sort(unique(CMPs_model_annotations$sample_site[which(CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                                                                 is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+                                                                   is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed))]))
+    selectInput("CMP_selectSample_site", "Sample site:", choices = choices_,selected = choices_,multiple = TRUE)
+  })
+  
+  output$CMP_mutBurdend_slide_uiOutput <- renderUI({
+      ids = which(CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                    is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+                    is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+                    is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site))
+      
+      range=range(CMPs_model_annotations$mutational_burden[ids],na.rm = TRUE)
+      sliderInput("CMP_mutBurdend_slide", "Mutation burden range (n.Mut x Mb):",
+                  min = round(range[1]), max = round(range[2]),
+                  value = round(range))
+  })
+  
+  output$CMP_ploidy_slide_uiOutput <- renderUI({
+    ids = which(CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                  is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+                  is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+                  is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site))
+    
+    range=range(CMPs_model_annotations$ploidy[ids],na.rm = TRUE)
+    sliderInput("CMP_ploidy_slide", "Ploidy range:",
+                min = round(range[1]), max = round(range[2]),
+                value = round(range))
+  })
+  
+  output$CMP_age_at_sampling_slide_uiOutput <- renderUI({
+    ids = which(CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                  is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+                  is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+                  is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site))
+    
+    range=range(CMPs_model_annotations$age_at_sampling[ids],na.rm = TRUE)
+    sliderInput("CMP_age_at_sampling_slide", "Age at sampling range:",
+                min = round(range[1]), max = round(range[2]),
+                value = round(range))
+  })
+  
+  output$CMP_etnicity_uiOutput<-renderUI({
+    ids = which(CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                  is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+                  is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+                  is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site))
+    
+    ranges=unique(CMPs_model_annotations$ethnicity[ids])
+    
+    if(length(ranges)==1){
+      h6(paste('Only one ethnic group value present (',ranges,')',sep=''))
+    }else{
+      selectInput("CMP_etnicity", paste(length(ranges),' ethnic group values avaible, select what to exclude',sep=''), choices = ranges,selected = NULL,multiple = TRUE)  
+    }
+  })
+  
+  
+  output$CMP_N_cell_lines<-renderUI({
+    
+    
+    ids = which(CMPs_model_annotations$mutation_data=='True' &
+                  CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                  is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+                  is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+                  is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site) &
+                  (input$CMP_exclude_organoids * (CMPs_model_annotations$model_type!='Organoid') |
+                     !input$CMP_exclude_organoids * rep(1,nrow(CMPs_model_annotations))) &
+                  (input$CMP_human_samples_only * (CMPs_model_annotations$species=="Homo Sapiens") |
+                     !input$CMP_human_samples_only * rep(1,nrow(CMPs_model_annotations))) &
+                  (CMPs_model_annotations$gender==input$CMP_gender | 
+                     (input$CMP_gender=='All (including Unknown)')*rep(1,nrow(CMPs_model_annotations))) &
+                  (CMPs_model_annotations$msi_status==input$CMP_msi_status | 
+                     (input$CMP_msi_status=='All (including NA)')*rep(1,nrow(CMPs_model_annotations)) |
+                     ((input$CMP_msi_status=='MSI-L/H') & (CMPs_model_annotations$msi_status == 'MSI-L' |
+                                                             CMPs_model_annotations$msi_status == 'MSI-H'))) &
+                   ((!input$CMP_based_on_mut_burden*rep(1,nrow(CMPs_model_annotations))) |
+                      (input$CMP_based_on_mut_burden * (round(CMPs_model_annotations$mutational_burden) >= input$CMP_mutBurdend_slide[1] &
+                                                               round(CMPs_model_annotations$mutational_burden) <= input$CMP_mutBurdend_slide[2])
+                       )
+                    ) &
+                  ((!input$CMP_based_on_ploidy*rep(1,nrow(CMPs_model_annotations))) |
+                     (input$CMP_based_on_ploidy * (round(CMPs_model_annotations$ploidy) >= input$CMP_ploidy_slide[1] &
+                                                         round(CMPs_model_annotations$ploidy) <= input$CMP_ploidy_slide[2])
+                     )
+                  ) &
+                  ((!input$CMP_age_at_sampling*rep(1,nrow(CMPs_model_annotations))) |
+                     (input$CMP_age_at_sampling * (round(CMPs_model_annotations$age_at_sampling) >= input$CMP_age_at_sampling_slide[1] &
+                                                     round(CMPs_model_annotations$age_at_sampling) <= input$CMP_age_at_sampling_slide[2])
+                     )
+                  ) &
+                  ((!input$CMP_based_on_etnicity*rep(1,nrow(CMPs_model_annotations))) |
+                     (input$CMP_based_on_etnicity * !is.element(CMPs_model_annotations$ethnicity,input$CMP_etnicity))
+                  )
+                )
+                
+    
+    ids_all = which(
+      CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+        is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+        is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+        is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site) &
+        (input$CMP_exclude_organoids * (CMPs_model_annotations$model_type!='Organoid') |
+           !input$CMP_exclude_organoids * rep(1,nrow(CMPs_model_annotations))) &
+        (input$CMP_human_samples_only * (CMPs_model_annotations$species=="Homo Sapiens") |
+           !input$CMP_human_samples_only * rep(1,nrow(CMPs_model_annotations))) &
+        (CMPs_model_annotations$gender==input$CMP_gender | 
+           (input$CMP_gender=='All (including Unknown)')*rep(1,nrow(CMPs_model_annotations))) &
+        (CMPs_model_annotations$msi_status==input$CMP_msi_status | 
+           (input$CMP_msi_status=='All (including NA)')*rep(1,nrow(CMPs_model_annotations)) |
+           ((input$CMP_msi_status=='MSI-L/H') & (CMPs_model_annotations$msi_status == 'MSI-L' |
+                                                   CMPs_model_annotations$msi_status == 'MSI-H'))) &
+        ((!input$CMP_based_on_mut_burden*rep(1,nrow(CMPs_model_annotations))) |
+           (input$CMP_based_on_mut_burden * (round(CMPs_model_annotations$mutational_burden) >= input$CMP_mutBurdend_slide[1] &
+                                               round(CMPs_model_annotations$mutational_burden) <= input$CMP_mutBurdend_slide[2])
+           )
+        ) &
+        ((!input$CMP_based_on_ploidy*rep(1,nrow(CMPs_model_annotations))) |
+           (input$CMP_based_on_ploidy * (round(CMPs_model_annotations$ploidy) >= input$CMP_ploidy_slide[1] &
+                                           round(CMPs_model_annotations$ploidy) <= input$CMP_ploidy_slide[2])
+           )
+        ) &
+        ((!input$CMP_age_at_sampling*rep(1,nrow(CMPs_model_annotations))) |
+           (input$CMP_age_at_sampling * (round(CMPs_model_annotations$age_at_sampling) >= input$CMP_age_at_sampling_slide[1] &
+                                           round(CMPs_model_annotations$age_at_sampling) <= input$CMP_age_at_sampling_slide[2])
+           )
+        ) &
+        ((!input$CMP_based_on_etnicity*rep(1,nrow(CMPs_model_annotations))) |
+           (input$CMP_based_on_etnicity * !is.element(CMPs_model_annotations$ethnicity,input$CMP_etnicity))
+        )
+    )
+    
+
+    
+    h4(paste(length(ids),' in-vitro models with genomic data available (out of ',
+             length(ids_all),') based on current filter settings.', sep=''))
+  })
+  
+  observeEvent(input$CL_BEM_generation, {
+    if(input$USE_cellModelPassports=='Use Variants Catalogue from Cell Model Passports (CMPs)'){
+      ids = which(CMPs_model_annotations$mutation_data=='True' &
+                    CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+                    is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+                    is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+                    is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site) &
+                    (input$CMP_exclude_organoids * (CMPs_model_annotations$model_type!='Organoid') |
+                       !input$CMP_exclude_organoids * rep(1,nrow(CMPs_model_annotations))) &
+                    (input$CMP_human_samples_only * (CMPs_model_annotations$species=="Homo Sapiens") |
+                       !input$CMP_human_samples_only * rep(1,nrow(CMPs_model_annotations))) &
+                    (CMPs_model_annotations$gender==input$CMP_gender | 
+                       (input$CMP_gender=='All (including Unknown)')*rep(1,nrow(CMPs_model_annotations))) &
+                    (CMPs_model_annotations$msi_status==input$CMP_msi_status | 
+                       (input$CMP_msi_status=='All (including NA)')*rep(1,nrow(CMPs_model_annotations)) |
+                       ((input$CMP_msi_status=='MSI-L/H') & (CMPs_model_annotations$msi_status == 'MSI-L' |
+                                                               CMPs_model_annotations$msi_status == 'MSI-H'))) &
+                    ((!input$CMP_based_on_mut_burden*rep(1,nrow(CMPs_model_annotations))) |
+                       (input$CMP_based_on_mut_burden * (round(CMPs_model_annotations$mutational_burden) >= input$CMP_mutBurdend_slide[1] &
+                                                           round(CMPs_model_annotations$mutational_burden) <= input$CMP_mutBurdend_slide[2])
+                       )
+                    ) &
+                    ((!input$CMP_based_on_ploidy*rep(1,nrow(CMPs_model_annotations))) |
+                       (input$CMP_based_on_ploidy * (round(CMPs_model_annotations$ploidy) >= input$CMP_ploidy_slide[1] &
+                                                       round(CMPs_model_annotations$ploidy) <= input$CMP_ploidy_slide[2])
+                       )
+                    ) &
+                    ((!input$CMP_age_at_sampling*rep(1,nrow(CMPs_model_annotations))) |
+                       (input$CMP_age_at_sampling * (round(CMPs_model_annotations$age_at_sampling) >= input$CMP_age_at_sampling_slide[1] &
+                                                       round(CMPs_model_annotations$age_at_sampling) <= input$CMP_age_at_sampling_slide[2])
+                       )
+                    ) &
+                    ((!input$CMP_based_on_etnicity*rep(1,nrow(CMPs_model_annotations))) |
+                       (input$CMP_based_on_etnicity * !is.element(CMPs_model_annotations$ethnicity,input$CMP_etnicity))
+                    )
+      )
+      
+      if(length(ids)>0){
+        if(length(input$CMP_selectCancerType)>0){
+          if(length(input$CMP_selectSample_site)>0){
+            if(input$CMP_genes=='Iorio et al. 2016 drivers'){
+              data(CELLector.HCCancerDrivers)
+              genesToConsider<-CELLector.HCCancerDrivers
+            }
+            if(input$CMP_genes=='CMPs drivers'){
+              genesToConsider<-CELLector.CMPs_getDriverGenes()
+            }
+            if(input$CMP_genes=='All'){
+              genesToConsider<-NULL
+            }
+            if(input$CMP_genes=='User defined list'){
+              fn<-input$CMP_ud_geneList
+              genesToConsider<-unlist(read.table(fn$datapath,stringsAsFactors = FALSE))
+              names(genesToConsider)<-NULL
+            }
+            
+            if(input$CMP_variants=='Iorio et al. 2016 variants (COSMIC filtered)'){
+              data(CELLector.RecfiltVariants)
+              variantsToConsider<-CELLector.RecfiltVariants
+            }
+            if(input$CMP_variants=='All'){
+              variantsToConsider<-NULL
+            }
+            if(input$CMP_variants=='User defined list'){
+              fn<-input$CMP_ud_variants
+              variantsToConsider<-unlist(read.table(fn$datapath,stringsAsFactors = FALSE,sep='\t'))
+              names(variantsToConsider)<-NULL
+            }
+            
+            progress <- shiny::Progress$new(style='notification')
+            
+            progress$set(message = "Building Genomic Binary Event matrix for In-vitro models... Please Wait", value = 0.5)
+            
+            GENDER<-input$CMP_gender
+            if (GENDER == 'all (including Unknown'){
+              GENDER <- NULL
+            }
+            
+        
+            
+            if(input$CMP_gender=="All (including Unknown)"){
+              gender<-NULL
+            }else{
+              gender<-input$CMP_gender
+            }
+            
+            
+            if(input$CMP_msi_status=="All (including NA)"){
+              msi<-NULL
+            }else{
+              msi<-input$CMP_msi_status
+            }
+            
+            if(input$CMP_age_at_sampling){
+              age<-input$CMP_age_at_sampling_slide
+            }else{
+              age<-NULL
+            }
+            
+            
+            
+            if(input$CMP_based_on_mut_burden){
+               mutBurd<-input$CMP_mutBurdend_slide
+             }else{
+               mutBurd<-NULL
+             }
+            
+            if(input$CMP_based_on_mut_burden){
+              mutBurd<-input$CMP_mutBurdend_slide
+            }else{
+              mutBurd<-NULL
+            }
+            
+            if(input$CMP_based_on_ploidy){
+              ploidy<-input$CMP_ploidy_slide
+            }else{
+              ploidy<-NULL
+            }
+            
+            if(input$CMP_based_on_etnicity){
+              etno<-input$CMP_etnicity
+            }else{
+              etno<-NULL
+            }
+            
+            BEM<-CELLector.CELLline_buildBEM(
+              Tissue = input$CMP_selectTissue,
+              Cancer_Type = input$CMP_selectCancerType,
+              
+              excludeOrganoids = input$CMP_exclude_organoids,
+              humanonly = input$CMP_human_samples_only,
+              Cancer_Type_details = input$CMP_selectCancerType_detailed,
+              sample_site = input$CMP_selectSample_site,
+              gender_select = gender,
+              msi_status_select = msi,
+              age_at_sampling = age,
+              mutational_burden_th = mutBurd,
+              ploidy_th = ploidy,
+              ethnicity_to_exclude = etno,
+              
+              GenesToConsider = genesToConsider,
+              VariantsToConsider = variantsToConsider
+              )
+            
+            progress$set(message = "Done!", value = 1)
+            progress$close()
+            
+            tmp<-as.matrix(BEM[,3:ncol(BEM)])
+            
+            showModal(modalDialog(paste("Binary Event Matrix created: ",
+                                        dim(tmp)[1],
+                                        ' in-vitro models x ',
+                                        dim(tmp)[2],
+                                        ' mutated genes.\nDensity: ',
+                                        format(100*sum(c(tmp))/prod(dim(tmp)),digits = 3),'%',
+                                        sep='')))
+            
+            UD_CL_BEM$data<-BEM
+            UD_CL_BEM_TISSUE$data<-input$CMP_selectTissue
+            UD_CL_BEM_CTYPE$data<-input$CMP_selectCancerType
+          }
+        }
+        else{showModal(modalDialog(
+          title = "Warning!",
+          paste("Select a sample site first.")
+        ))}
+      }else{
+        showModal(modalDialog(
+          title = "Warning!",
+          paste("0 in-vitro models available based on current filter settings.")
+        ))
+      }
+    }
+    else{
+      if(length(input$CMP_ud_variant_catalogue)==0){
+        showModal(modalDialog('Upload variant catalogue file first.'))
+      }else{
+        
+        
+        progress <- shiny::Progress$new(style='notification')
+        
+        progress$set(message = "Building Genomic Binary Event matrix for In-vitro models... Please Wait", value = 0.5)
+        
+        varCat<-read.table(input$CMP_ud_variant_catalogue$datapath,sep='\t',header=TRUE,stringsAsFactors = FALSE)
+        
+        if(length(intersect(c("model_name","model_id","gene_symbol"),colnames(varCat)))!=3){
+          showModal(modalDialog('Incorrect file format: model_name and/or model_id and/or gene_symbol column not found!'))
+          progress$close()
+        }else{
+           BEM<-CELLector.CELLline_buildBEM(varCat = varCat)  
+           progress$set(message = "Done!", value = 1)
+        
+           progress$close()
+        
+           tmp<-as.matrix(BEM[,3:ncol(BEM)])
+           showModal(modalDialog(paste("Binary Event Matrix created: ",
+                                       dim(tmp)[1],
+                                       ' in-vitro models x ',
+                                       dim(tmp)[2],
+                                       ' mutated genes.\nDensity: ',
+                                       format(100*sum(c(tmp))/prod(dim(tmp)),digits = 3),'%',
+                                       sep='')))
+           UD_CL_BEM$data<-BEM
+           UD_CL_BEM_TISSUE$data<-"User Defined"
+           UD_CL_BEM_CTYPE$data<-NULL
+        }
+      }
+    }
+  })
+  
+  
+  output$SAVE_CL_BEM <- 
+    downloadHandler(
+      filename = function(){
+        if(input$CL_BEM_AS_WHAT=='R object'){paste("in-vitro_BEM_",Sys.Date(), ".RData", sep = "")}
+        else{paste("in-vitro_BEM_",Sys.Date(), ".tsv", sep = "")}
+        },
+      content = function(file){
+        res<-UD_CL_BEM$data
+        #tmp<-as.matrix(res[,3:ncol(res)])
+        #rownames(tmp)<-res[,2]
+        #colnames(tmp)<-colnames(res)[3:ncol(res)]
+        #tmp<-t(tmp)
+        if(input$CL_BEM_AS_WHAT=='R object'){save(res,file = file)}
+        else{write.table(res,file=file,quote=FALSE,sep='\t',row.names=FALSE)}
+        }
+      )
+  
+  observeEvent(input$TGCA_BEM_generation, {
+    if(input$USE_whatTumData=='Use curated TCGA data from Iorio et al. 2016'){
+      if(input$TCGA_genes=='Iorio et al. 2016 drivers'){
+        data(CELLector.HCCancerDrivers)
+        genesToConsider<-CELLector.HCCancerDrivers
+      }
+      if(input$TCGA_genes=='CMPs drivers'){
+        genesToConsider<-CELLector.CMPs_getDriverGenes()
+      }
+      if(input$TCGA_genes=='All'){
+        genesToConsider<-NULL
+      }
+      if(input$TCGA_genes=='User defined list'){
+        fn<-input$TCGA_ud_geneList
+        genesToConsider<-unlist(read.table(fn$datapath,stringsAsFactors = FALSE))
+        names(genesToConsider)<-NULL
+      }
+      if(input$TCGA_variants=='Iorio et al. 2016 variants (COSMIC filtered)'){
+        data(CELLector.RecfiltVariants)
+        variantsToConsider<-CELLector.RecfiltVariants
+      }
+      if(input$TCGA_variants=='All'){
+        variantsToConsider<-NULL
+      }
+      if(input$TCGA_variants=='User defined list'){
+        fn<-input$TCGA_ud_variants
+        variantsToConsider<-unlist(read.table(fn$datapath,stringsAsFactors = FALSE,sep='\t'))
+        names(variantsToConsider)<-NULL
+      }
+         
+         progress <- shiny::Progress$new(style='notification')
+         
+         progress$set(message = "Building Genomic Binary Event matrix for Tumours... Please Wait", value = 0.5)
+         
+         BEM<-CELLector.Tumours_buildBEM(
+           Cancer_Type = input$TCGA_selectCancerType,
+           GenesToConsider = genesToConsider,
+           VariantsToConsider = variantsToConsider)
+         progress$set(message = "Done!", value = 1)
+         progress$close()
+         
+         tmp<-BEM
+         
+         showModal(modalDialog(paste("Binary Event Matrix created: ",
+                                     dim(tmp)[2],
+                                     ' Tumours x ',
+                                     dim(tmp)[1],
+                                     ' mutated genes.\nDensity: ',
+                                     format(100*sum(c(tmp))/prod(dim(tmp)),digits = 3),'%',
+                                     sep='')))
+         
+         UD_TUM_BEM$data<-BEM
+         UD_TUM_BEM_CTYPE$data<-input$TCGA_selectCancerType
+      }else{
+       if(length(input$TCGA_ud_variant_catalogue)==0){
+         showModal(modalDialog('Upload variant catalogue file first.'))
+       }else{
+         progress <- shiny::Progress$new(style='notification')
+         progress$set(message = "Building Genomic Binary Event matrix for Tumours... Please Wait", value = 0.5)
+         
+         varCat<-read.table(input$TCGA_ud_variant_catalogue$datapath,sep='\t',header=TRUE,stringsAsFactors = FALSE)
+         
+         if(length(intersect(c("SAMPLE","gene_symbol"),colnames(varCat)))!=3){
+           showModal(modalDialog('Incorrect file format: SAMPLE and/or gene_symbol column not found!'))
+           progress$close()
+         }else{
+           BEM<-CELLector.Tumours_buildBEM(varCat = varCat)  
+           progress$set(message = "Done!", value = 1)
+           
+           progress$close()
+           
+           tmp<-as.matrix(BEM[,3:ncol(BEM)])
+           showModal(modalDialog(paste("Binary Event Matrix created: ",
+                                       dim(tmp)[1],
+                                       ' tumour samples x ',
+                                       dim(tmp)[2],
+                                       ' mutated genes.\nDensity: ',
+                                       format(100*sum(c(tmp))/prod(dim(tmp)),digits = 3),'%',
+                                       sep='')))
+           UD_TUM_BEM$data<-BEM
+           UD_TUM_BEM_CTYPE$data<-NULL
+         }
+       }
+     }
+    })
+  
+  output$SAVE_TCGA_BEM <- 
+    downloadHandler(
+      filename = function(){
+        if(input$TGCA_BEM_AS_WHAT=='R object'){paste("tumours_BEM_",Sys.Date(), ".RData", sep = "")}
+        else{paste("tumours_BEM_",Sys.Date(), ".tsv", sep = "")}
+      },
+      content = function(file){
+        res<-UD_TUM_BEM$data
+        if(input$TGCA_BEM_AS_WHAT=='R object'){save(res,file = file)}
+        else{write.table(res,file=file,quote=FALSE,sep='\t',row.names=TRUE)}
+      }
+    )
   
 }

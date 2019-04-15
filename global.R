@@ -1,7 +1,10 @@
 library(shiny)
+
+library(shinyBS)
 library(shinythemes)
 library(beeswarm)
 library(plotrix)
+library(xfun)
 
 #polar.plot(), pie3D()
 library(devtools)
@@ -17,15 +20,25 @@ library(grImport2)
 library(data.tree)
 library(igraph)
 library(sunburstR)
-
+options(warn=-1)
 ## Loading Primary Tumour Binary Event Matrices
 data(CELLector.PrimTum.BEMs)
+data(CELLector.PrimTum.BEMs_v2)
 
-CELLector.PrimTum.BEMs<-CELLector.PrimTum.BEMs[2:length(CELLector.PrimTum.BEMs)]
+OrPrimTumBEMs<-CELLector.PrimTum.BEMs
+OrPrimTumBEMs_v2<-CELLector.PrimTum.BEMs_v2
+
+CELLector.PrimTum.BEMs<-OrPrimTumBEMs[2:length(OrPrimTumBEMs)]
+
 ## Loading Cell Lines's Binary Event Matrices
 data(CELLector.CellLine.BEMs)
+data(CELLector.CellLine.BEMs_v2)
+
+OrCellLineBEMs<-CELLector.CellLine.BEMs
+OrCellLineBEMs_v2<-CELLector.CellLine.BEMs_v2
 
 data(CELLector.CFEs.CNAid_decode)
+data(CELLector.CFEs.HMSid_decode)
 
 CNAid_decode<-data.frame(Id=as.character(CELLector.CFEs.CNAid_decode$CNA_Identifier),
                    CancerType=as.character(CELLector.CFEs.CNAid_decode$CancerType),
@@ -36,6 +49,10 @@ CNAid_decode<-data.frame(Id=as.character(CELLector.CFEs.CNAid_decode$CNA_Identif
 CNAid_decode$Gain_Loss[CNAid_decode$Gain_Loss=='Amplification']<-'Gain'
 CNAid_decode$Gain_Loss[CNAid_decode$Gain_Loss=='Deletion']<-'Loss'
 
+HMSid_decode<-data.frame(Id=as.character(CELLector.CFEs.HMSid_decode$hms_id),
+                         CancerType=as.character(CELLector.CFEs.HMSid_decode$Cancer.Types),
+                         GenomicCoords=as.character(CELLector.CFEs.HMSid_decode$Genomic.Coordinates),
+                         DownStream.Genes=as.character(CELLector.CFEs.HMSid_decode$GN))
 
 for (i in 1:nrow(CNAid_decode)){
    
@@ -59,6 +76,8 @@ for (i in 1:nrow(CNAid_decode)){
 data(CELLector.CFEs)
 data(CELLector.Pathway_CFEs)
 data(CELLector.MSIstatus)
+data(CELLector.PrimTumVarCatalog)
+
 
 ## Deriving available TCGA labels
 TCGALabels<-names(CELLector.PrimTum.BEMs)
@@ -69,6 +88,12 @@ colnames(tumours)<-paste(colnames(tumours),'_',1:ncol(tumours),sep='')
 features<-CELLector.CFEs
 pathways<-names(CELLector.Pathway_CFEs)
 
+## Downloading Cell Model Passports annotations
+CMPs_model_annotations<-CELLector.CMPs_getModelAnnotation()
+CMPs_driverGenes<-CELLector.CMPs_getDriverGenes()
+
+#Iorios_driverGenes<-
+#CMPs_variants<-CELLector.CMPs_getVariants()
 
 CELLector_App.complementarPieChart<-function(Tree,NavTab,nodeIdx){
   
@@ -103,4 +128,25 @@ CELLector_App.complementarPieChart<-function(Tree,NavTab,nodeIdx){
   
   return(list(supports=supports,COLORS=COLORS))
 }
+CELLector_App.checkBEMformats<-function(primTumBEMs,cellLinBEMS){
+  
+  errFlag<- 0
+  
+  if (!is.list(primTumBEMs) | !is.list(cellLinBEMs)){
+    errFlag<-1
+    errMessage<-paste('Wrong BEM formats!\nA named list of binary matrices (with TCGA cancer type labels as names). The entries of each of these matrices indicate the status (Present/Absent) of each CFE (one per row) across primary tumors samples (one per column).')
+  }
+  
+}
+
+# current_CMP_models<-function(input){
+#   
+#   ids<-which(CMPs_model_annotations$tissue==input$CMP_selectTissue & is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType))
+#   
+#   if(input$CMP_exclude_organoids){
+#       ids<-ids[CMPs_model_annotations$model_type[ids]=='Cell Line']
+#   }
+#   
+#   return(CMPs_model_annotations$model_name[ids])
+# }
 
