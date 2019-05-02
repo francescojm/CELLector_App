@@ -71,6 +71,7 @@ ui <- fluidPage(
                                               
                                                   
                                                   downloadButton("score", "Score cell lines"),
+                                                  downloadButton("subTypeMap", "Cell lines SubTypes Map"),
                                                       
                                                   sliderInput("scoreAlpha",min = 0,max=1,
                                                               strong(paste("\nSignature Length weight (= 1 - n. Patients score weight)")),
