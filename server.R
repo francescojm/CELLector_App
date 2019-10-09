@@ -745,6 +745,31 @@ server <- function(input, output, session) {
     }
   )
   
+  output$subTypeMap <- downloadHandler(
+    filename = function(){
+      paste("CELLector_subTypeMap_", input$selectCancerType, "_", Sys.Date(), ".tsv", sep = "")
+    },
+    content = function(file) {
+      if(length(NT$data)>0){
+        #res<-CELLector.Score(NT$data$navTable,CELLlineData$data,input$scoreAlpha) 
+        
+        ### take all the signatures from the searching space
+        Signatures <- CELLector.createAllSignatures(NT$data$navTable)
+        
+        ### mapping colorectal cancer cell lines onto the CELLector searching space
+        ModelMat<-CELLector.buildModelMatrix(Signatures$ES,CELLlineData$data,NT$data$navTable)
+        
+        rownames(ModelMat)<-Signatures$S[rownames(ModelMat)]
+        
+        ModelMat<-cbind(rownames(ModelMat),ModelMat)
+        colnames(ModelMat)[1]<-"Signature"
+        
+        write.table(ModelMat, file,sep='\t', row.names = FALSE, quote=FALSE)    
+      }
+    }
+  )
+  
+  
   output$CMP_selectCancerType_uiOutput <- renderUI({
     choices_ = sort(unique(CMPs_model_annotations$cancer_type[which(CMPs_model_annotations$tissue==input$CMP_selectTissue)]))
     selectInput("CMP_selectCancerType", "Cancer Type:", choices = choices_,selected = choices_,multiple = TRUE)

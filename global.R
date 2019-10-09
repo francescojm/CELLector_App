@@ -90,6 +90,8 @@ pathways<-names(CELLector.Pathway_CFEs)
 
 ## Downloading Cell Model Passports annotations
 CMPs_model_annotations<-CELLector.CMPs_getModelAnnotation()
+CMPs_model_annotations$cancer_type_detail<-
+  str_sub(CMPs_model_annotations$cancer_type_detail,3,end = str_length(CMPs_model_annotations$cancer_type_detail)-3)
 CMPs_driverGenes<-CELLector.CMPs_getDriverGenes()
 
 #Iorios_driverGenes<-
@@ -174,8 +176,9 @@ CELLector_App.current_Model_ids<-function(input,annotation,genomicData=TRUE){
   )
   
 
+  
   if(genomicData){
-    ids<-ids[which(CMPs_model_annotations$mutation_data[ids])]
+    ids<-ids[which(CMPs_model_annotations$mutation_data[ids]=='True')]
   }
   
   return(ids)
