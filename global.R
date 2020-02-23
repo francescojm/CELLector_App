@@ -142,45 +142,50 @@ CELLector_App.checkBEMformats<-function(primTumBEMs,cellLinBEMS){
 }
 
 CELLector_App.current_Model_ids<-function(input,annotation,genomicData=TRUE){
+  
+  ################### TO FIX!!! 
+  
+  
   ids<-which(
-          CMPs_model_annotations$tissue==input$CMP_selectTissue & 
-          is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
-          is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
-          is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site) &
-          (input$CMP_exclude_organoids * (CMPs_model_annotations$model_type!='Organoid') |
-             !input$CMP_exclude_organoids * rep(1,nrow(CMPs_model_annotations))) &
-          (input$CMP_human_samples_only * (CMPs_model_annotations$species=="Homo Sapiens") |
-             !input$CMP_human_samples_only * rep(1,nrow(CMPs_model_annotations))) &
-          (CMPs_model_annotations$gender==input$CMP_gender | 
-             (input$CMP_gender=='All (including Unknown)')*rep(1,nrow(CMPs_model_annotations))) &
-          (CMPs_model_annotations$msi_status==input$CMP_msi_status | 
-             (input$CMP_msi_status=='All (including NA)')*rep(1,nrow(CMPs_model_annotations))) &
-          ((!input$CMP_based_on_mut_burden*rep(1,nrow(CMPs_model_annotations))) |
-             (input$CMP_based_on_mut_burden * (round(CMPs_model_annotations$mutational_burden) >= input$CMP_mutBurdend_slide[1] &
-                                                 round(CMPs_model_annotations$mutational_burden) <= input$CMP_mutBurdend_slide[2])
-             )
-          ) &
-          ((!input$CMP_based_on_ploidy*rep(1,nrow(CMPs_model_annotations))) |
-             (input$CMP_based_on_ploidy * (round(CMPs_model_annotations$ploidy) >= input$CMP_ploidy_slide[1] &
-                                             round(CMPs_model_annotations$ploidy) <= input$CMP_ploidy_slide[2])
-             )
-          ) &
-          ((!input$CMP_age_at_sampling*rep(1,nrow(CMPs_model_annotations))) |
-             (input$CMP_age_at_sampling * (round(CMPs_model_annotations$age_at_sampling) >= input$CMP_age_at_sampling_slide[1] &
-                                             round(CMPs_model_annotations$age_at_sampling) <= input$CMP_age_at_sampling_slide[2])
-             )
-          ) &
-          ((!input$CMP_based_on_etnicity*rep(1,nrow(CMPs_model_annotations))) |
-             (input$CMP_based_on_etnicity * !is.element(CMPs_model_annotations$ethnicity,input$CMP_etnicity))
-          )
-  )
-  
-
-  
-  if(genomicData){
-    ids<-ids[which(CMPs_model_annotations$mutation_data[ids]=='True')]
-  }
-  
+           CMPs_model_annotations$tissue==input$CMP_selectTissue)
+  #& 
+  #         is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
+  #         is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
+  #         is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site) &
+  #         (input$CMP_exclude_organoids * (CMPs_model_annotations$model_type!='Organoid') |
+  #            !input$CMP_exclude_organoids * rep(1,nrow(CMPs_model_annotations))) &
+  #         (input$CMP_human_samples_only * (CMPs_model_annotations$species=="Homo Sapiens") |
+  #            !input$CMP_human_samples_only * rep(1,nrow(CMPs_model_annotations))) &
+  #         (CMPs_model_annotations$gender==input$CMP_gender | 
+  #            (input$CMP_gender=='All (including Unknown)')*rep(1,nrow(CMPs_model_annotations))) &
+  #         (CMPs_model_annotations$msi_status==input$CMP_msi_status | 
+  #            (input$CMP_msi_status=='All (including NA)')*rep(1,nrow(CMPs_model_annotations))) &
+  #         ((!input$CMP_based_on_mut_burden*rep(1,nrow(CMPs_model_annotations))) |
+  #            (input$CMP_based_on_mut_burden * (round(CMPs_model_annotations$mutational_burden) >= input$CMP_mutBurdend_slide[1] &
+  #                                                round(CMPs_model_annotations$mutational_burden) <= input$CMP_mutBurdend_slide[2])
+  #            )
+  #         ) &
+  #         ((!input$CMP_based_on_ploidy*rep(1,nrow(CMPs_model_annotations))) |
+  #            (input$CMP_based_on_ploidy * (round(CMPs_model_annotations$ploidy) >= input$CMP_ploidy_slide[1] &
+  #                                            round(CMPs_model_annotations$ploidy) <= input$CMP_ploidy_slide[2])
+  #            )
+  #         ) &
+  #         ((!input$CMP_age_at_sampling*rep(1,nrow(CMPs_model_annotations))) |
+  #            (input$CMP_age_at_sampling * (round(CMPs_model_annotations$age_at_sampling) >= input$CMP_age_at_sampling_slide[1] &
+  #                                            round(CMPs_model_annotations$age_at_sampling) <= input$CMP_age_at_sampling_slide[2])
+  #            )
+  #         ) &
+  #         ((!input$CMP_based_on_etnicity*rep(1,nrow(CMPs_model_annotations))) |
+  #            (input$CMP_based_on_etnicity * !is.element(CMPs_model_annotations$ethnicity,input$CMP_etnicity))
+  #         )
+  # )
+  # 
+  # 
+  # 
+  # if(genomicData){
+  #   ids<-ids[which(CMPs_model_annotations$mutation_data[ids]=='True')]
+  # }
+  # 
   return(ids)
 }
 
