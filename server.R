@@ -434,27 +434,27 @@ server <- function(input, output, session) {
                                                   includeHMS = FALSE,
                                                   cdg = colnames(TUMOURS$data),
                                                   FeatureToExclude=input$toExclude)
-            # 
-            # 
-            # if(nrow(NT$data$navTable)>0){
-            #   
-            #   S <- CELLector.createAllSignatures(NavTab = NT$data$navTable)
-            #   
-            #   SIGNATURES$data <- S$S
-            #   encodedSIGNATURES$data <- S$ES
-            #   
-            #   CLD <- CELLector.CellLine.BEMs[[input$selectCancerType]]
-            #   CIDS <- CLD$COSMIC_identifier
-            #   rn <- CLD[,2]
-            #   CLD <- as.matrix(CLD[,3:ncol(CLD)])
-            #   rownames(CLD) <- rn
-            #   
-            #   
-            #   
+             
+             
+             if(nrow(NT$data$navTable)>0){
+               
+               S <- CELLector.createAllSignatures(NavTab = NT$data$navTable)
+               
+               SIGNATURES$data <- S$S
+               encodedSIGNATURES$data <- S$ES
+               
+               CLD <- CELLector.CellLine.BEMs[[input$selectCancerType]]
+               CIDS <- CLD$COSMIC_identifier
+               rn <- CLD[,2]
+               CLD <- as.matrix(CLD[,3:ncol(CLD)])
+               rownames(CLD) <- rn
+               
+               
+               
               
              progress$set(message = "Done!", value = 1)
              progress$close()
-            # }
+            }
           }
       }
     })
@@ -501,20 +501,18 @@ server <- function(input, output, session) {
     if(!ErrFlag){
       oldWS<-ls()
       load(inFile_primTum$datapath)
-      primTum_objName<-setdiff(ls(),c(oldWS,'oldWS'))
+      primTum_object<-res
+      rm(res)
       
-      oldWS<-ls()
       load(inFile_cellLin$datapath)
-      cellLin_objName<-setdiff(ls(),c(oldWS,'oldWS'))
-      
-      primTum_object<-eval(parse(text=primTum_objName))
-      cellLin_object<-eval(parse(text=cellLin_objName))
-      
+      cellLin_object<-res
+      rm(res)
+            
       if(!is.matrix(primTum_object)){
         ErrFlag<-1
         showModal(modalDialog(
           title = "Warning!",
-          "The Binary genomic Event Matrices for primary Tumours shoud be a binary event matrix (BEM) modeling, respectively a cohort of cancer patients and a set of cell lines. With cancer functional events (CFEs) on the columns and sample identifers on the rows. See the documentation entry for the CELLector.PrimTum.BEMs object for further details"
+          "The Binary genomic Event Matrices for primary Tumours shoud be a binary event matrix (BEM) modeling a cohort of cancer patients. With cancer functional events (CFEs) on the columns and sample identifers on the rows. See the documentation entry for the CELLector.PrimTum.BEMs object of the CELLector R package for further details"
         ))  
         }
       
@@ -557,31 +555,31 @@ server <- function(input, output, session) {
   output$NodeDetails<-renderTable({
     
     if(length(input$searchSpace)>0){
-      nodeLabel<-input$searchSpace[[length(input$searchSpace)]]
-      
-      nodeIdx<-str_split(nodeLabel,' ')
-      itemSet<-nodeIdx[[1]][2]
-      nodeIdx<-nodeIdx[[1]][1]
-      
-      itt<-as.numeric(nodeIdx)
-      
-      if (itt <= length(SIGNATURES$data)){
-        SELECTEDNODE$data<-itt
-        data.frame(`Patient SubType`=nodeIdx,
-                   `Underlying Signature`=SIGNATURES$data[[itt]])
-      }else{
-        SELECTEDNODE$data<-1
-        data.frame(`Patient SubType`=format(1,digits=1),
-                   `Underlying Signature`=SIGNATURES$data[[1]])
-      }
+       nodeLabel<-input$searchSpace[[length(input$searchSpace)]]
+       
+       nodeIdx<-str_split(nodeLabel,' ')
+       itemSet<-nodeIdx[[1]][2]
+       nodeIdx<-nodeIdx[[1]][1]
+       
+       itt<-as.numeric(nodeIdx)
+       
+       if (itt <= length(SIGNATURES$data)){
+         SELECTEDNODE$data<-itt
+         data.frame(`Patient SubType`=nodeIdx,
+                    `Underlying Signature`=SIGNATURES$data[[itt]])
+       }else{
+         SELECTEDNODE$data<-1
+         data.frame(`Patient SubType`=format(1,digits=1),
+                    `Underlying Signature`=SIGNATURES$data[[1]])
+       }
     }else{
-      if(length(SIGNATURES$data)>0){
-        SELECTEDNODE$data<-1
-        data.frame(`Patient SubType`=format(1,digits=1),
-                   `Underlying Signature`=SIGNATURES$data[[1]]) 
-      }else{
-        SELECTEDNODE$data<-NULL
-        return(NULL)
+       if(length(SIGNATURES$data)>0){
+         SELECTEDNODE$data<-1
+         data.frame(`Patient SubType`=format(1,digits=1),
+                    `Underlying Signature`=SIGNATURES$data[[1]]) 
+       }else{
+         SELECTEDNODE$data<-NULL
+         return(NULL)
       }
     }
   })
