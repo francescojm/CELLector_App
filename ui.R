@@ -24,7 +24,7 @@ ui <- fluidPage(
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       
                       hr(),
-                      h3('v1.0.0 (beta)'),
+                      h3('v1.0.1'),
                       p(h5(a("Tutorial", href="https://www.dropbox.com/s/djaaj2b33hqv4w1/Supplemental_Information.pdf?dl=1" ,
                              target="_blank"))),
                       p(h5(a("Code", href="https://github.com/francescojm/CELLector_App" ,
