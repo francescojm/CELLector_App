@@ -1,3 +1,5 @@
+![alt text](www/Cellector-logo-double-size.png)
+
 # CELLector: Genomics Guided Selection of Cancer in vitro models (Rshiny App)
 
 Najgebauer, H., Yang, M., Francies, H., Pacini, C., Stronach, E. A., Garnett, M. J., Saez-Rodriguez, J., & Iorio, F. CELLector: Genomics Guided Selection of Cancer in vitro Models. http://doi.org/10.1101/275032
