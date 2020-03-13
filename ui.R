@@ -6,6 +6,9 @@ ui <- fluidPage(
              tabPanel(title = "Select Cell Lines",
                       fluidRow(
                         column(4,
+                               a(img(src="Cellector-logo-double-size.png", height = 131, width = 216, align = "middle"))
+                        ),
+                        column(4,
                                a(img(src="cti_ot_primary_logo_blk_hr.jpg", height = 57, width = 156, align = "middle"),
                                  href='https://www.opentargets.org/',target="_blank")
                                ),
@@ -210,6 +213,9 @@ ui <- fluidPage(
              tabPanel(title = "BEM builder",
                       fluidRow(
                         column(4,
+                               a(img(src="Cellector-logo-double-size.png", height = 131, width = 216, align = "middle"))
+                        ),
+                        column(4,
                                a(img(src="cti_ot_primary_logo_blk_hr.jpg", height = 57, width = 156, align = "middle"),
                                  href='https://www.opentargets.org/',target="_blank")
                         ),
@@ -227,7 +233,15 @@ ui <- fluidPage(
                       br(),
                       titlePanel(div(HTML("Genomic Binary Event Matrix (BEM) builder"))),
                       hr(),
-                      h3('v1.0.0 (beta)'),
+                      h3('v1.0.1'),
+                      p(h5(a("Tutorial", href="https://www.dropbox.com/s/djaaj2b33hqv4w1/Supplemental_Information.pdf?dl=1" ,
+                             target="_blank"))),
+                      p(h5(a("Code", href="https://github.com/francescojm/CELLector_App" ,
+                             target="_blank"))),
+                      p(h5(a("CELLector R Package", href="https://github.com/francescojm/CELLector" ,
+                             target="_blank"))),
+                      p(h5(a("CELLector R Package interactive vignette", href="https://rpubs.com/francescojm/CELLector" ,
+                             target="_blank"))),
                       column(6,
                              wellPanel(
                                h4(strong("Primary tumours")),
