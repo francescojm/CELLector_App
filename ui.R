@@ -24,7 +24,15 @@ ui <- fluidPage(
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       
                       hr(),
-                      h3('v1.0.0 (beta)'),
+                      h3('v1.0.1'),
+                      p(h5(a("Tutorial", href="https://www.dropbox.com/s/djaaj2b33hqv4w1/Supplemental_Information.pdf?dl=1" ,
+                             target="_blank"))),
+                      p(h5(a("Code", href="https://github.com/francescojm/CELLector_App" ,
+                             target="_blank"))),
+                      p(h5(a("CELLector R Package", href="https://github.com/francescojm/CELLector" ,
+                                                             target="_blank"))),
+                      p(h5(a("CELLector R Package interactive vignette", href="https://rpubs.com/francescojm/CELLector" ,
+                                                              target="_blank"))),
                       verbatimTextOutput("str"),
                       fluidRow(
                         # - - - - - - - - - - - - - - - - - - - - -
@@ -55,9 +63,7 @@ ui <- fluidPage(
                                  actionButton("action", label = tags$strong(em("Build Search Space"))),
                                  br(), br(),
                                  downloadButton("DownSearchSpace", label = "Download Search Space"),
-                                 br(), br(),
-                                 p(h6("Tutorial available", a("here.", href="https://drive.google.com/open?id=1vTachWWefdS8sWFunBDh6ssIfwzhivJ6" ,
-                                                              target="_blank")))
+                                 br(), br()
                                ),
                                
                                fluidRow(column(12, 
