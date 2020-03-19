@@ -265,13 +265,13 @@ server <- function(input, output, session) {
         
         
         suppressWarnings(
-        res<-CELLector.makeSelection(modelMat = CELLector.buildModelMatrix(encodedSIGNATURES$data,
-                                                                           CELLlineData$data,
-                                                                           NT$data$navTable),
-                                     input$N.CellLines,
-                                     NT$data$navTable)
+         res<-CELLector.makeSelection(modelMat = CELLector.buildModelMatrix(encodedSIGNATURES$data,
+                                                                            CELLlineData$data,
+                                                                            NT$data$navTable),
+                                      input$N.CellLines,
+                                      NT$data$navTable)
         )
-        
+         
         write.table(res, file,sep='\t', row.names = FALSE, quote=FALSE)    
       }
     }
