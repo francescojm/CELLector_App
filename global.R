@@ -143,11 +143,8 @@ CELLector_App.checkBEMformats<-function(primTumBEMs,cellLinBEMS){
 
 CELLector_App.current_Model_ids<-function(input,annotation,genomicData=TRUE){
   
-  ################### TO FIX!!! 
-  
-  
   ids<-which(
-           CMPs_model_annotations$tissue==input$CMP_selectTissue & 
+           CMPs_model_annotations$tissue==input$CMP_selectTissue &
            is.element(CMPs_model_annotations$cancer_type,input$CMP_selectCancerType) &
            is.element(CMPs_model_annotations$cancer_type_detail,input$CMP_selectCancerType_detailed) &
           is.element(CMPs_model_annotations$sample_site,input$CMP_selectSample_site) &
@@ -180,8 +177,10 @@ CELLector_App.current_Model_ids<-function(input,annotation,genomicData=TRUE){
   )
   
   
+  ##### possible inconsistency in the annotation file on the CMP website will cause this function to 
+  ##### return NULL
    if(genomicData){
-     ids<-ids[which(CMPs_model_annotations$mutation_data[ids]=='True')]
+     ids<-ids[which(CMPs_model_annotations$mutation_data[ids])]
    }
    
   return(ids)
