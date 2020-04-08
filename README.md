@@ -37,3 +37,7 @@ CELLector can be used in three different modalities:
 ## R package: quick start (interactive vignette)
 
 http://rpubs.com/francescojm/CELLector
+
+
+## R Shiny App tutorial and example case studies
+https://rpubs.com/francescojm/CELLector_App
