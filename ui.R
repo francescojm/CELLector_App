@@ -5,21 +5,31 @@ ui <- fluidPage(
              title = "CELLector",
              tabPanel(title = "Select Cell Lines",
                       fluidRow(
-                        column(3,
+                        column(2,
+                               a(img(src="Cancer-dependency-map-logo-MAIN-Transparent.png",
+                                     height = 83, width = 146, align = "middle"),
+                                 href='https://depmap.sanger.ac.uk/',target="_blank")
+                        ),
+                        column(2,
+                               a(img(src="Dep Map Analytics Logo lighter.png",
+                                     height = 76, width = 150, align = "middle"),
+                                 href='https://www.sanger.ac.uk/science/groups/cancer-dependency-map-analytics',target="_blank")
+                        ),
+                        column(2,
                                a(img(src="Asset 1.png",
                                      height = 63, width = 140, align = "middle"),
                                  href='https://cellmodelpassports.sanger.ac.uk/',target="_blank")
                         ),
-                        column(3,
+                        column(2,
                                a(img(src="cti_ot_primary_logo_blk_hr.jpg", height = 51, width = 140, align = "middle"),
                                  href='https://www.opentargets.org/',target="_blank")
                                ),
-                        column(3,
+                        column(2,
                                a(img(src="EMBL_EBI_Logo_black.jpg",
                                      height = 41, width = 139, align = "middle"),
                                  href='https://www.ebi.ac.uk/',target="_blank")
                         ),
-                        column(3,
+                        column(2,
                                a(img(src="Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Monotone_Black.png",
                                      height = 52, width = 152, align = "middle"),
                                  href='http://www.sanger.ac.uk/',target="_blank")
