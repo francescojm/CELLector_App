@@ -16,10 +16,12 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
-
+ <br> 
 ![](../www/Cellector-logo-double-size.png)
+<br> <br> <br><br>
 
 ## Introduction
+<br>
 CELLector App is a user friendly interface to [CELLector](https://github.com/francescojm/CELLector): a computational tool assisting experimental scientists in the selection of the most clinically relevant cancer cell lines to be included in a new in-vitro study (or to be considered in a retrospective study), in a patient-genomic guided fashion.
 
 CELLector combines methods from graph theory and market basket analysis; it leverages tumour genomics data to explore, rank, and select optimal cell line models in a user-friendly way, through the [CELLector Rshiny App](https://github.com/francescojm/CELLector_app). This enables making appropriate and informed choices about model inclusion/exclusion in retrospective analyses, future studies and it makes possible bridging cancer patient genomics with public available databases froom cell line based functional/pharmacogenomic screens, such as [CRISPR-cas9 dependency datasets](https://score.depmap.sanger.ac.uk/) and [large-scale in-vitro drug screens](https://www.cancerrxgene.org/).
@@ -34,9 +36,11 @@ License: GNU GPL v3
 
 Najgebauer, H., Yang, M., Francies, H., Pacini, C., Stronach, E. A., Garnett, M. J., Saez-Rodriguez, J., & Iorio, F. CELLector: Genomics Guided Selection of Cancer in vitro Models. https://www.biorxiv.org/content/10.1101/275032v3
 
+<hr>
+<br> <br> <br><br>
 
 ## CELLector Running Modalities
-
+<br>
 CELLector can be used in three different modalities:
 
   - (i) as an R package (within R, code available at: https://github.com/francescojm/CELLector),
@@ -50,7 +54,11 @@ https://github.com/francescojm/CELLector/blob/master/CELLector.pdf.
 
 An **interactive vignette of the CELLector R package** is available [here](https://rpubs.com/francescojm/CELLector)
 
+<hr>
+<br> <br> <br><br>
+
 ## Selecting representative cancer cell lines
+<br>
 Click [here](https://ot-cellector.shinyapps.io/CELLector_App/) to launch the CELLector R Shiny App.
 
 The user interface of the CELLector App is made of two main components implemented into two different tabs, respectively labelled with _Select Cell Lines_ and _BEM builder_.
@@ -59,16 +67,20 @@ The user interface of the CELLector App is made of two main components implement
 
 To run CELLector analyses and to explore the results the first tab _Select Cell Lines_ tab should be selected (it is by default). By clicking on the second tab (_BEM builder_) a module for the generation of customised genomic binary event matrices (BEMs) for cell lines and tumours can be accessed (details in the sections below).
 
+<br> <br> <br>
 
 ### Study case 1: Selecting microsatellite stable cell lines best representing TP53 mutant colorectal cancer patients with genomic alterations in 3 biological pathways
+<br>
 The _Select Cell Lines_ module interface displays seven boxes, detailed in the examples below.
 
 ![](../www/GUI_1_selectCellLines.png)
 
 In the first example study case we want to select 5 clinically relevant _in vitro_ models that best represent the genomic diversity of TP53 mutatant colorectal tumours. In addition, the models that we wannt to select should be microsatellite stable and should harbour at least one genomic alteration in the following signalling pathways: _PI3K-AKT-MTOR signalling_, _RAS-RAF-MEK-ERK/JNK signalling_ and _WNT signalling_. Finally, we want the model selection to be guided by somatic mutations and copy number alterations observed in at least 3% of the considered TP53 mutant tumour cohort. The summary results from this analysis are shown in Case Study Figure 1.
 
-#### Step 1: Setting up the search space building criteria and building the search space
+<br> <br>
 
+#### Step 1: Setting up the search space building criteria and building the search space
+<br>
 ![](../www/GUI_1_settingUpSearchCriteria.png)
 
 CELLector provides built-in genomics data for matching primary tumours and cell lines derived from 16 cancer types. To start, we select a cancer type of interest from a dropdown list (as shown above) or alternatively, we can upload our own reference data by ticking the _User Defined Binary genomic Event Matrices (BEMs)_ box (as shown below). In this example case study, we select Colorectal Cancer (COREAD) (i) and we use the CELLector built-in data. 
@@ -88,7 +100,10 @@ Once the desire criteria (Box 2 and Box 3 if build-in datasets are used or Box 2
 ![](../www/GUI_1_caseResults.png)
 <font size="1"> **_Case Study Figure 1_** **A.** Visual representation of the CELLector search space summarising the genomic heterogeneity of TP53 mutant colorectal (COREAD) tumours, considering both somatic mutations and copy number alterations in user-defined biological pathways (user interface box 1 and box 2). Each node of the binary tree (top) represents a tumour subpopulation associated with a genomic signature. The prevalence of the identified signatures, and their hierarchical co-occurrence is represented by the sunburst (below the tree). Each segment of the sunburst corresponds to a node in the tree and is color-coded accordingly. The CELLector search space is built using genomic characterisation of a cohort of 517 colorectal cancer patient available as a built-in dataset. First, the cohort is reduced to the 302 tumours harbouring TP53 mutations. CELLector then identifies 3 major molecular subpopulations characterised, respectively, by APC mutations, KRAS mutations, and loss of a segment of chromosome 17 (at the 17p12 loci) that collectively represent 93% (n=243+26+12 = 281) of the studied tumour cohort. The remaining 7% of the TP53 mutant tumours (n=21) do not fall into any of the identified molecular subpopulations thus are not represented in the CELLector search space. The largest molecular subpopulation (80.46%, n=243, harbouring TP53 and APC mutations) is assigned to the root of the search space (node 1, in purple). The second largest subpopulation (9%, n=26) is characterised by co-occurrence of TP53 and KRAS mutations in absence of APC mutations (node 2, in magenta), and the third largest subpopulation (4%, n=12) harbours TP53 mutations and the loss of 17p12 segment in the absence of both APC and KRAS mutations (node 14, in cyan). Each of these complementary tumour subpopulations are then further refined based on the prevalence of the remaining set of molecular alterations. This process runs recursively and stops when all molecular alteration sets with user-determined tumour prevalence (in this case 3%, user interface box 1) are defined. In this study case, a total number of 15 distinct tumour subpopulations with defined genomic signatures are identified, when considering the TP53 mutant tumour sub-cohort and alterations in the selected pathways. **B.** Cell Line Map table including microsatellite stable cell lines mirroring the genomic signatures of the TP53 mutant COREAD tumour subpopulations identified in the CELLector search space (user interface box 2). The Cell Map table uncovers the complete set of molecular alterations (e.g. genomic signatures) that characterise each tumour subpopulation. For example, the least prevalent TP53 mutant colorectal cancer subpopulation (node 13, 3.64% of patients) is characterised by co-occurring mutations in APC, PIK3CA, PTEN, KRAS and NF1 in the absence of 17p12 segment loss; this genomic signature is not mirrored by any of the considered microsatellite stable (MSS) colorectal cancer models. The representative cell lines are picked from each of the molecular tumour subpopulations starting with the most prevalent one. The models in green represent a possible choice of n-user-defined cell lines that could be selected in the presented case study.</font>
 
+<br> <br>
+
 #### Step 2: Exploring the search space
+<br>
 CELLector provides a range of visualisation tools enabling users to interactively explore the CELLector search space (e.g. the identified tumour subpopulations with defined genomic signature) and the cell line selection results (Box 6), shown in the below figure. These include a binary tree (A), a sunburst (B), a pie chart (C), a dot plot (D) and a cell line information table (E).
 
 ![](../www/GUI_1_vistools.png)
@@ -97,40 +112,107 @@ When the search space building is completed, a binary tree, which represents the
 
 To enable easy navigation, the resulting CELLector searching space is translated into a Cell Map table (as shown in **_Case Study Figure 1B_**), which can be downloaded by clicking ‘Download Search Space’ (Box 1, iv).
 
+<br> <br>
+
 #### Step 3: Selecting cell lines
+<br>
 The last step in the CELLector analysis, after constructing the search space (Step 1), consist of selecting a user defined number of representative cell line models (Box 7).
 
 The list of possible model choices (in this case example, made of 5 cell lines) is downloaded into a user-specified directory by clicking on _CELLect Cell Lines_. The outputted file provides information regarding the prevalence of the tumour subpopulations represented by the selected modelwith corresponding genomic signatures. The _Cell lines SubTypes Map_ can be also downloaded by clicking on the _Cell lines SubTypes Map_ button. Finally, the user can score  the representative ability of the cell lines by specifying how to weight the length of the signatures they account for and the size of the corresponding modeled patient sub-cohort (bottom of Box 7). Cell line scores are downloadable by clicking on _Score cell lines_.
 
 ![](../www/modelSelection.png)
 
+<br> <br> <br>
+
 ### Study case 2: Unsupervised selection of microsatellite stable cell lines best representing colorectal cancer patients
+<br>
 In this case study, we want to select 5 microsatellite stable cell lines capturing the genomic heterogeneity of a cohort of colorectal cancer patients, focusing on sets of somatic mutations that are prevalent in at least 5% of the considered patient cohort. Setting up and building the search space as for the previus study case, yields the summary results shown in the figure below.
 
 ![](../www/GUI_2_caseResults.png)
 <font size="1"> **_Case Study Figure 2_** **A.** Visual representation of the CELLector search space constructed based on the prevalence of co-occurring mutations in a cohort of colorectal cancer (COREAD) patients (user interface box 1). Each node of the binary tree (top) represents a tumour subpopulation with a defined genomic signature. The prevalence of the identified signatures, and their hierarchical co-occurrence is represented by the sunburst (below). Each segment of the sunburst corresponds to a node in the three and is color-coded accordingly. The CELLector search space is assembled using a built-in dataset containing the genomic characterisation of a cohort of 517 colorectal cancer tumours (Table S1). CELLector identifies 2 major subpopulations defined by APC mutations (node 1, in purple) and TP53 mutations (node 2, in magenta), collectively representing 88% of the studied cohort (n = 396 + 59 = 455 patients). The remaining 12% of tumours (n = 21) do not fall into any of the identified molecular subpopulations, i.e. they do not harbour APC nor TP53 mutations. The largest molecular subpopulation (76.6%, n = 396, harbouring APC mutations) is assigned to the root of the search space (node 1). The second largest subpopulation (11.4%, n=59) is characterised by TP53 mutations in the absence of APC mutations (node 2). At this point, each identified tumour subpopulation is further refined based on the prevalence of other set of alterations. This process runs recursively and stops when all alteration sets with a user-determined prevalence (in this case 5%, user interface box 1) have been identified. In this case study, a total number of 10 distinct tumour subpopulations with corresponding genomic signatures are identified. Notably, some of the identified signatures (such as absence of APC mutations (~APCmut), co-occurrence of mutations in APC and TP53 (APCmut TP53mut), same combination with the addition of KRAS mutations (APCmut TP53mut KRASmut), and the co-occurrence of APC and KRAS mutations (APCmut ~TP53mut KRASmut) in the absence of TP53 mutations were reported to have a prognostic role in colorectal tumour stratification (Schell et al., 2016). **B.** Cell Line Map table including microsatellite stable cell lines mirroring the genomic signatures of the COREAD subpopulations identified in the CELLector search space (user interface box 2). The Cell Map table uncovers the complete set of molecular alterations (e.g. genomic signatures) defining each tumour subpopulation. For example, the least prevalent colorectal cancer subpopulation (node 8, 5.22% of tumours) is characterised by the co-occurrence of APC, TP53, KRAS, PIK3CA and PTEN mutations; this genomic signature is not reflected by any of the available microsatellite stable COREAD models included in the built-in dataset. The representative cell lines are picked from each of the molecular tumour subpopulations starting from the most prevalent one. The models in green represent a possible choice of n-user-defined cell lines that could be selected in the presented case study.</font>
 
-## Decoding identifiers of copy number altarations and hypermethylated gene promoters
+<hr>
+<br> <br> <br><br>
+
+## Decoding identifiers of copy number alterations and hypermethylated gene promoters
+<br>
 ![](../www/CNAdecoding.png)
 
 If a user wishes to include copy number alterations (can) or hypermethylation (hsm) in the analysis (Box 3: Supervised Search Space Construction), CELLector provides a look up tables to search for genes that are within recurrently copy number altered chromosomal segments (Box 4) or downstreaming hypermethylated gene promoters (table not shown). 
 
+<hr>
+<br> <br> <br><br>
+
 ## Building genomic binary event matrices (BEMs)
+<br>
 CELLector allowing assembling _de-novo_ genomic binary event matrices from user defined genomic data, which can be used to perform CELLector analyses or with independent/external tools.
 
 The _BEM Builder_ page displays two panels, respectively for _Primary tumours_ and _in-vitro models_ (as shown below).
 
 ![](../www/BEMbuilder.png)
 
+<br> <br> <br>
+
 ### Building BEMs for primary tumours
+<br>
+
+BEMs for primary tumours can be generated using CELLector built-in variant catalogues from the [TCGA](https://portal.gdc.cancer.gov/) (using curated data from Iorio _et al_. 2016) or user own reference data. 
+
+<br> <br>
+
 #### Using built-in genomic datasets from the TCGA
+<br>
+
+To generate tumour BEMs from built-in TCGA data user should select the _use curated TCGA data from Iorio et al. 2016_ option (step 1) then select the cancer type of interest (step 2) then specify which genes and variants to consider (step 3). Supported options are _All_ genes/variants, Iorio _et al_.2016’ drivers/variants (in this case a set of high-confidence cancer driver genes generated by the [intOGen](https://www.intogen.org/) pipeline will be used), _CMP drivers_ (in this case high-confidence cancer driver genes used to annotate cell line genomic data on the [Cell Model Passport](https://cellmodelpassports.sanger.ac.uk/) and _User defined list_, for both genes and variants. Once all the parameters are specified, users shoul select the _BEM file format_ (R object or .tsv) and click on _Make new BEM_ (step 4). The information regarding the number of tumours and mutated genes used to generate the BEM will be displayed (as shown below), the BEM will be generated and saved to a user specified directory by clicking on on _Make new BEM_ and then on _Save BEM_ (step 5). 
+
+![](../www/BEMfromTCGA.png)
+
+
+<br> <br>
+
 #### Using custom user-defined datasets
+<br>
+
+To generate tumour BEMs with custom user defined genomic data, users should select the _Upload Variants_ option (step 1), then select a file with the variants (a tab delimited txt file with two columns, respectively for gene symbols and aminoacid substitutions) (step 2), the select the file format (R object or .tsv) and click on _Make new BEM_ (step 3). The information regarding the number of tumours and mutated genes used to generate the BEM will displayed, the BEM generated, and saved to user specified directory by clicking on _Make new BEM_ and then on _Save BEM_ (step 4). 
+
+![](../www/primTumBEMcustom.png)
+
+<br> <br> <br>
 
 ### Building BEMs for _in vitro_ models
-#### Using data from the [_Cell Model Passport_](https://cellmodelpassports.sanger.ac.uk/)
-#### Using custom user-defined datasets
+<br>
 
-# Using the CELLector App locally
+BEMs for in vitro models can be generated using variant catalogues from the [Cell Model Passport (CMPs)](https://cellmodelpassports.sanger.ac.uk/) or custom user-defined data. 
+
+<br> <br>
+
+#### Using data from the [_Cell Model Passport_](https://cellmodelpassports.sanger.ac.uk/)
+<br>
+
+To generate BEMs for in vitro models using variant catalogue from [Cell Model Passport (CMPs)](https://cellmodelpassports.sanger.ac.uk/), users should select the _use Variant Catalogue from Cell Model Passports (CMPs)_ option (step 1) then specify what types of models they are interested in (step 2), based on parameters such as tissue of origin, cancer type and subtypes, age, ethnicity, ploidy etc. Infos on available models based on the selected parameters will be displayed on the top of the panel (step 3).
+The information regarding the number of tumours and mutated genes used to generate the BEM will displayed.
+
+
+![](../www/BEMfromCMPs.png)
+
+In the example below, we demonstrate how to generate models BEM for breast carcinoma cell lines derived from ascites, breast, mammary gland, peripheral fluid and pleural effusion. Applying these criteria, the number of available models is reduced from 50 (shown above, top panel step 3) to 10 (shown below, top panel step 3). Then we need to specify what genes and variants to consider. Supported options are (as for the previous cases) _All_ genes/variants, _Iorio et al.2016_  drivers/variants, Cell Model Passports _CMP drivers_ and _User defined list_ for both genes and variants. Once all the parameters are specified, select BEM file format (R object or .tsv) and click ‘Make new BEM’ (step 4). The information regarding the number of tumours and mutated genes used to generate the BEM will display in a box below (as shown below), the BEM generated, and saved to user specified directory by clicking on _Make new BEM_ and then on _Save BEM_ (step 4). 
+
+![](../www/cellBEMbreastExample.png)
+
+<br> <br>
+
+#### Using custom user-defined datasets
+<br>
+
+To generate in vitro model BEMs using custom user defined genomic data, user should select the _Upload Variants_ option (step 1), then select the data from your local directory (step 2, formatted as specified in BEM for primary tumours section), then select the BEM file format (R object or .tsv) and then click on _Make new BEM_ (step 3). The information regarding the number of models and mutated genes used to generate the BEM will displayed. Finally, once the BEM is generated, it is saved to user specified directory by clicking _Save BEM_ (step 4).
+
+![](../www/CELLbemfromCustom.png)
+
+<hr>
+<br> <br> <br><br>
+
+## Using the CELLector App locally
+<br>
 To use the CELLector App locally, its code should be downloaded as a single compressed folder from
 https://github.com/francescojm/CELLector_App/archive/master.zip.
 Once the folder has been downloaded, it should be uncompressed. Then [Rstudio](https://www.rstudio.com/) should be launched with the working directory set to the uncompressed folder with the CELLector App code (as shown in the figure below).
