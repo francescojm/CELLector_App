@@ -27,8 +27,8 @@ ui <- fluidPage(
                        
                       ),
                       br(),
-                      column(3,
-                             a(img(src="Cellector-logo-double-size.png", height = 131, width = 216, align = "middle"))
+                      column(5,
+                             a(img(src="Cellector-logo-double-size.png", align = "middle"))
                       ),
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       
