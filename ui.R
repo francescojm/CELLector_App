@@ -5,29 +5,35 @@ ui <- fluidPage(
              title = "CELLector",
              tabPanel(title = "Select Cell Lines",
                       fluidRow(
-                        column(4,
-                               a(img(src="Cellector-logo-double-size.png", height = 131, width = 216, align = "middle"))
+                        column(3,
+                               a(img(src="Asset 1.png",
+                                     height = 63, width = 140, align = "middle"),
+                                 href='https://cellmodelpassports.sanger.ac.uk/',target="_blank")
                         ),
-                        column(4,
-                               a(img(src="cti_ot_primary_logo_blk_hr.jpg", height = 57, width = 156, align = "middle"),
+                        column(3,
+                               a(img(src="cti_ot_primary_logo_blk_hr.jpg", height = 51, width = 140, align = "middle"),
                                  href='https://www.opentargets.org/',target="_blank")
                                ),
-                        column(4,
-                               a(img(src="Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Monotone_Black.png",
-                                     height = 58, width = 169, align = "middle"),
-                                  href='http://www.sanger.ac.uk/',target="_blank")
-                               ),
-                        column(4,
+                        column(3,
                                a(img(src="EMBL_EBI_Logo_black.jpg",
-                                   height = 46, width = 155, align = "middle"),
+                                     height = 41, width = 139, align = "middle"),
                                  href='https://www.ebi.ac.uk/',target="_blank")
-                               )
+                        ),
+                        column(3,
+                               a(img(src="Wellcome_Sanger_Institute_Logo_Landscape_Digital_RGB_Monotone_Black.png",
+                                     height = 52, width = 152, align = "middle"),
+                                 href='http://www.sanger.ac.uk/',target="_blank")
+                        )
+                       
                       ),
                       br(),
+                      column(3,
+                             a(img(src="Cellector-logo-double-size.png", height = 131, width = 216, align = "middle"))
+                      ),
                       titlePanel(div(HTML("Genomics Guided Selection of Cancer <em>in vitro</em> Models"))),
                       
                       hr(),
-                      h3('v1.0.2'),
+                      h3('v1.0.3'),
                       p(h5(a("Tutorial", href="https://rpubs.com/francescojm/CELLector_App" ,
                              target="_blank"))),
                       p(h5(a("Code", href="https://github.com/francescojm/CELLector_App" ,
