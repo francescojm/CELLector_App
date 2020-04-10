@@ -1,0 +1,73 @@
+---
+title: "CELLector App: a front end to CELLector for Genomics Guided Selection of Cancer in vitro models"
+author: "Hanna Najgebauer and Francesco Iorio"
+subtitle: 'Manuscript Example Study Case (Figure 1DE) Details'
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+ <br> 
+![](../www/Cellector-logo-double-size.png)
+<br> <br> <br><br>
+[CELLector App online tutorial](https://rpubs.com/francescojm/CELLector_App)
+
+[CELLector R package interactive vignette](https://rpubs.com/francescojm/CELLector)
+
+[CELLector manuscript example study case](https://rpubs.com/francescojm/CELLector_mans_ex)
+<br> <br> <br><br>
+
+
+# Manuscript high-level example study case reported in Figure 1DE
+
+<br><br>
+
+**Selecting Microsatellite Instable Cell Lines Representing BRAF Mutant Colorectal Cancers**
+
+We present a practical example to demonstrate the usefulness of CELLector in an experimental study design. Detailed instructions on other use cases are provided in this tutorial.
+In this example, we want to identify the most clinically relevant microsatellite instable cell lines (CLs) that capture the genomic diversity of a sub-cohort of colorectal cancer patients that harbour BRAF mutations. BRAF mutant colorectal cancers have a low prevalence (5%-8%) and very poor prognosis. In this example, the model selection will be performed accounting for somatic mutations that are prevalent in at least 5% of the considered colorectal patient cohort (Figure 1DE: box 1 and box 2).
+
+<br> <br> <br><br>
+
+![](../www/PaperFigure.png)
+
+<br> <br> <br><br>
+
+## Building the CELLector search space
+
+<br><br>
+
+After setting the CELLector app parameters to reflect the search criteria, the CELLector search space is assembled using a built-in dataset containing the genomic characterisation of a cohort of 517 colorectal cancer tumours (Table S1 and STAR Methods). 
+
+<br>
+
+First, the cohort is reduced to the tumours harbouring BRAF mutations (n=86, Figure 1D: node 1). CELLector then identifies 3 major molecular subpopulations characterised, respectively, by APC mutations (Figure 1D: node 2), FBXW7 mutations (Figure 1D: node 3), and PIK3CA mutations (Figure 1D: node 10), collectively representing 85% of the BRAF mutant cohort. The remaining 15% of BRAF mutant tumours do not fall into any of the identified molecular subpopulations, i.e. they do not harbour APC, FBXW7 nor PIK3CA mutations; Figure 1D). 
+
+<br>
+
+The largest molecular subpopulation (58.14%, harbouring BRAF and APC mutations) is assigned to the root of the search space (Figure 2A: node 2, in purple). The second largest subpopulation (16.28%) is characterised by the co-occurrence of BRAF and FBXW7 mutations in the absence of APC mutations (Figure 2A: node 3, in magenta), and the third largest subpopulation (10.47%) harbours the BRAF and PIK3CA mutations in the absence of both APC and FBXW7 mutations (Figure 2A: node 10, in cyan). At this point, each identified tumour subpopulation is further refined based on the prevalence of the remaining set of alterations (STAR Methods). This process runs recursively and stops when all alteration sets with a user-determined prevalence (in this case 5%, Figure 1D: box 1) are identified. In this study case, a total number of 10 distinct tumour subpopulations with corresponding genomic signatures are identified.
+
+<br><br><br>
+
+##Selection of representative in vitro models
+
+<br><br>
+
+The CELLector search space generated as detailed in the previous section is next translated into a Cell Line Map table (Figure 1E), indicating the order in which cancer in vitro models mirroring the identified genomic signatures should be selected, and accounting also for tumour subpopulations currently lacking representative in vitro models. This selection order is defined by a guided visit of the CELLector search space (introduced in the previous sections and detailed in the STAR Methods), aiming at maximising the heterogeneity observed in the studied primary tumours. The Cell Map table uncovers the complete set of molecular alterations (e.g. genomic signatures) defining each tumour subpopulation (in this example n=10). For example, a BRAF mutant colorectal tumour subpopulation (node 8, 9.30% of tumours) is characterised by the co-occurrence of BRAF, APC, PIK3CA, PTEN, TP53 and KRAS mutations; this genomic signature (BRAFmut APCmut PIK3CAmut PTENmut TP53mut KRASmut) is not mirrored by any of the available microsatellite instable colorectal cancer models included in the built-in dataset. On the contrary, the subpopulation characterised by the co-occurence of BRAF, APC and TP53 mutations in absence of PIK3CA mutations (BRAFmut APCmut ~PIK3CAmut TP53mut, node 5, 15.12% of tumours) is represented by microsatellite instable KM12 and LS-411N CLs (Figure 1E).   
+
+<br>
+
+Finally, representative CLs are picked from each of the molecular tumour subpopulations (as detailed in the STAR Methods) starting from the most prevalent one, i.e. as they appear in the Cell Line Map table. A possible choice of in vitro models that best represent the genomic diversity of the studied tumour cohort include: LS-411N, SNU-C5, RKO and KM12 (Figure 1E shown in green). Additional case studies are available in the CELLector App [tutorial on-line](https://rpubs.com/francescojm/CELLector_App).
+
+
+
+
