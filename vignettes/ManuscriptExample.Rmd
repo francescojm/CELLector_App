@@ -19,11 +19,11 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
  <br> 
 ![](../www/Cellector-logo-double-size.png)
 <br> <br> <br><br>
-[CELLector App online tutorial](https://rpubs.com/francescojm/CELLector_App)
-
 [CELLector R package interactive vignette](https://rpubs.com/francescojm/CELLector)
 
 [CELLector manuscript example study case](https://rpubs.com/francescojm/CELLector_mans_ex)
+
+[CELLector App online tutorial](https://rpubs.com/francescojm/CELLector_App)
 <br> <br> <br><br>
 
 
